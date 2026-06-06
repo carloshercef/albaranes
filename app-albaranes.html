@@ -630,19 +630,38 @@ window.onload = async () => {
   cargarSiguienteNumero();
 };
 
+function jsonpGet(url) {
+  return new Promise((resolve, reject) => {
+    const cbName = "cb_" + Date.now() + "_" + Math.floor(Math.random()*10000);
+    const script = document.createElement("script");
+    const timeout = setTimeout(() => {
+      delete window[cbName];
+      if (document.body.contains(script)) document.body.removeChild(script);
+      reject(new Error("timeout"));
+    }, 15000);
+    window[cbName] = (data) => {
+      clearTimeout(timeout);
+      delete window[cbName];
+      if (document.body.contains(script)) document.body.removeChild(script);
+      resolve(data);
+    };
+    script.src = url + "&callback=" + cbName;
+    script.onerror = () => { clearTimeout(timeout); reject(new Error("error")); };
+    document.body.appendChild(script);
+  });
+}
+
 async function cargarDatosDesdeSheets() {
-  if (CONFIG.APPS_SCRIPT_URL.includes("TU_SCRIPT_ID")) return; // no configurado aún
+  if (CONFIG.APPS_SCRIPT_URL.includes("TU_SCRIPT_ID")) return;
   try {
-    const [rCli, rProd] = await Promise.all([
-      fetch(CONFIG.APPS_SCRIPT_URL + "?action=getClientes"),
-      fetch(CONFIG.APPS_SCRIPT_URL + "?action=getProductos")
+    const [dCli, dProd] = await Promise.all([
+      jsonpGet(CONFIG.APPS_SCRIPT_URL + "?action=getClientes"),
+      jsonpGet(CONFIG.APPS_SCRIPT_URL + "?action=getProductos")
     ]);
-    const dCli  = await rCli.json();
-    const dProd = await rProd.json();
     if (dCli.clientes  && dCli.clientes.length)  CLIENTES  = dCli.clientes;
     if (dProd.productos && dProd.productos.length) PRODUCTOS = dProd.productos;
   } catch(e) {
-    // Sin conexión o script no publicado aún — usa datos de ejemplo locales
+    console.log("Usando datos locales:", e.message);
   }
 }
 
@@ -659,8 +678,7 @@ function poblarSelectClientes() {
 
 async function cargarSiguienteNumero() {
   try {
-    const r = await fetch(CONFIG.APPS_SCRIPT_URL + "?action=getNextNum");
-    const d = await r.json();
+    const d = await jsonpGet(CONFIG.APPS_SCRIPT_URL + "?action=getNextNum");
     if (d.num) {
       nextNum = d.num;
       document.getElementById("next-num-badge").textContent = nextNum;
