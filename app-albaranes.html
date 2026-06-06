@@ -163,6 +163,17 @@
   }
   @keyframes slideIn { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: translateY(0); } }
 
+  .linea-row .precio-manual {
+    background: #fff8e8;
+    border-color: #e0a030;
+    text-align: right;
+    font-family: var(--font-mono);
+    font-size: 13px;
+  }
+  .linea-row .precio-manual:focus {
+    border-color: var(--accent);
+    background: #fff;
+  }
   .linea-row .precio-unitario {
     font-family: var(--font-mono);
     font-size: 13px;
@@ -544,7 +555,7 @@
 // ═══════════════════════════════════════════════════════
 const CONFIG = {
   // URL de tu Google Apps Script (Web App) — ver INSTRUCCIONES.md
-  APPS_SCRIPT_URL: "https://script.google.com/macros/s/AKfycbzybPgDQzKMa0y54B4ILHMphRZveVhittDkXbRjhu9SNqMAPazVkig3EzTZurIh6VGAow/exec",
+  APPS_SCRIPT_URL: "https://script.google.com/macros/s/TU_SCRIPT_ID_AQUI/exec",
 
   // Datos de tu empresa (aparecen en el albarán)
   empresa: {
@@ -714,17 +725,25 @@ function renderLineas() {
       optsHtml += `<option value="${p.id}" ${sel}>${p.nombre} (${p.unidad})</option>`;
     });
 
-    const precio = linea.precio > 0 ? linea.precio.toFixed(2) : "—";
     const subtotal = linea.productoId && linea.cantidad > 0 && linea.precio > 0
       ? "€ " + (linea.cantidad * linea.precio).toFixed(2)
       : "—";
+
+    // Precio: editable si no hay tarifa prefijada para este producto/cliente
+    const precioFijo = linea.precioFijo; // true = viene de tarifa, false = manual
+    const precioHTML = precioFijo
+      ? `<div class="precio-unitario" id="precio-${linea.id}">€ ${linea.precio.toFixed(2)}</div>`
+      : `<input type="number" min="0" step="0.01" class="precio-unitario precio-manual"
+           id="precio-${linea.id}" value="${linea.precio || ''}"
+           onchange="onPrecioManualChange(${linea.id}, this.value)"
+           placeholder="Precio">`;
 
     div.innerHTML = `
       <select onchange="onProductoChange(${linea.id}, this.value)">${optsHtml}</select>
       <input type="number" min="0" step="0.01" value="${linea.cantidad}"
         onchange="onCantidadChange(${linea.id}, this.value)"
         placeholder="0">
-      <div class="precio-unitario" id="precio-${linea.id}">€ ${precio}</div>
+      ${precioHTML}
       <div class="subtotal-cell" id="sub-${linea.id}">${subtotal}</div>
       <button class="btn-remove" onclick="removeLinea(${linea.id})" title="Eliminar línea">×</button>
     `;
@@ -749,13 +768,26 @@ function onCantidadChange(id, val) {
 function actualizarPrecio(idx) {
   const linea = lineas[idx];
   let precio = 0;
+  let precioFijo = false;
   if (linea.productoId && clienteActual) {
-    precio = clienteActual.tarifas[linea.productoId] || 0;
+    const tarifaPrecio = clienteActual.tarifas[linea.productoId];
+    if (tarifaPrecio && tarifaPrecio > 0) {
+      precio = tarifaPrecio;
+      precioFijo = true;
+    }
   }
   lineas[idx].precio = precio;
-  const el = document.getElementById(`precio-${linea.id}`);
-  if (el) el.textContent = precio > 0 ? `€ ${precio.toFixed(2)}` : "—";
+  lineas[idx].precioFijo = precioFijo;
+  // Re-renderizar solo esta línea para mostrar input o div según corresponda
+  renderLineas();
   actualizarSubtotal(idx);
+}
+
+function onPrecioManualChange(id, val) {
+  const idx = lineas.findIndex(l => l.id === id);
+  lineas[idx].precio = parseFloat(val) || 0;
+  actualizarSubtotal(idx);
+  calcularTotal();
 }
 
 function actualizarSubtotal(idx) {
