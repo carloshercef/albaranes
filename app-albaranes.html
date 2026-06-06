@@ -1,1015 +1,706 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Albaranes — Cocina Central</title>
-<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Fraunces:opsz,wght@9..144,300;9..144,500;9..144,600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
-<style>
-  :root {
-    --ink: #1a1a18;
-    --ink-mid: #4a4a44;
-    --ink-light: #9a9a90;
-    --paper: #f8f6f0;
-    --paper-warm: #efe9dc;
-    --accent: #c8440a;
-    --accent-light: #f5e8e0;
-    --green: #2d6a4f;
-    --green-light: #d8eedf;
-    --border: #d8d2c4;
-    --radius: 6px;
-    --font-display: 'Fraunces', serif;
-    --font-body: 'DM Sans', sans-serif;
-    --font-mono: 'DM Mono', monospace;
-  }
+// ═══════════════════════════════════════════════════════════════
+// SISTEMA DE ALBARANES + FACTURAS — Google Apps Script v2
+// Pega este código en: script.google.com → Nuevo proyecto
+// ═══════════════════════════════════════════════════════════════
 
-  * { box-sizing: border-box; margin: 0; padding: 0; }
+// ── CONFIGURACIÓN — edita estos valores ────────────────────────
+const SPREADSHEET_ID  = "TU_SPREADSHEET_ID_AQUI";
+const DRIVE_FOLDER_ID = "TU_FOLDER_ID_AQUI";
+const HOJA_CONTADOR   = "Contador";
+const HOJA_REGISTRO   = "Registro";
+const PREFIJO_ALB     = "ALB";
+const PREFIJO_FAC     = "FAC";
 
-  body {
-    font-family: var(--font-body);
-    background: var(--paper);
-    color: var(--ink);
-    min-height: 100vh;
-    font-size: 15px;
-  }
-
-  /* ── Header ── */
-  header {
-    background: var(--ink);
-    color: var(--paper);
-    padding: 0 2rem;
-    height: 56px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    position: sticky;
-    top: 0;
-    z-index: 100;
-  }
-  header .logo {
-    font-family: var(--font-display);
-    font-size: 20px;
-    font-weight: 500;
-    letter-spacing: -0.3px;
-  }
-  header .logo span { color: #e07a50; }
-  header .num-badge {
-    font-family: var(--font-mono);
-    font-size: 12px;
-    background: rgba(255,255,255,0.1);
-    padding: 4px 10px;
-    border-radius: 4px;
-    letter-spacing: 0.5px;
-    color: #b8b2a4;
-  }
-
-  /* ── Layout ── */
-  .main {
-    max-width: 860px;
-    margin: 0 auto;
-    padding: 2rem 1.5rem 4rem;
-  }
-
-  /* ── Section headers ── */
-  .section-label {
-    font-family: var(--font-mono);
-    font-size: 11px;
-    text-transform: uppercase;
-    letter-spacing: 1.5px;
-    color: var(--ink-light);
-    margin-bottom: 0.75rem;
-    padding-bottom: 0.5rem;
-    border-bottom: 1px solid var(--border);
-  }
-
-  /* ── Cards ── */
-  .card {
-    background: #fff;
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 1.25rem 1.5rem;
-    margin-bottom: 1.25rem;
-  }
-
-  /* ── Selects e inputs ── */
-  select, input[type="number"], input[type="text"], input[type="date"], textarea {
-    font-family: var(--font-body);
-    font-size: 14px;
-    color: var(--ink);
-    background: var(--paper);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 9px 12px;
-    width: 100%;
-    outline: none;
-    transition: border-color 0.15s;
-    -webkit-appearance: none;
-  }
-  select:focus, input:focus, textarea:focus {
-    border-color: var(--accent);
-    background: #fff;
-  }
-  select {
-    cursor: pointer;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%239a9a90' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
-    background-repeat: no-repeat;
-    background-position: right 12px center;
-    padding-right: 32px;
-  }
-  label {
-    display: block;
-    font-size: 12px;
-    font-weight: 500;
-    color: var(--ink-mid);
-    margin-bottom: 5px;
-    letter-spacing: 0.2px;
-  }
-  .field { margin-bottom: 1rem; }
-  .field:last-child { margin-bottom: 0; }
-
-  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
-  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; }
-
-  @media (max-width: 600px) {
-    .grid-2, .grid-3 { grid-template-columns: 1fr; }
-    .main { padding: 1rem 1rem 4rem; }
-    header { padding: 0 1rem; }
-  }
-
-  /* ── Líneas de producto ── */
-  .lineas-header {
-    display: grid;
-    grid-template-columns: 3fr 1.2fr 1.2fr 1.5fr 40px;
-    gap: 8px;
-    padding: 0 0 8px;
-    border-bottom: 1px solid var(--border);
-    margin-bottom: 8px;
-  }
-  .lineas-header span {
-    font-size: 11px;
-    font-weight: 500;
-    color: var(--ink-light);
-    text-transform: uppercase;
-    letter-spacing: 0.8px;
-  }
-  .linea-row {
-    display: grid;
-    grid-template-columns: 3fr 1.2fr 1.2fr 1.5fr 40px;
-    gap: 8px;
-    align-items: center;
-    padding: 8px 0;
-    border-bottom: 1px solid #f0ece4;
-    animation: slideIn 0.2s ease;
-  }
-  @keyframes slideIn { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: translateY(0); } }
-
-  .linea-row .precio-unitario {
-    font-family: var(--font-mono);
-    font-size: 13px;
-    color: var(--ink-mid);
-    padding: 9px 12px;
-    background: var(--paper);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    text-align: right;
-  }
-  .linea-row .subtotal-cell {
-    font-family: var(--font-mono);
-    font-size: 13px;
-    font-weight: 500;
-    color: var(--ink);
-    text-align: right;
-    padding-right: 4px;
-  }
-
-  .btn-remove {
-    width: 32px; height: 32px;
-    border: 1px solid var(--border);
-    background: #fff;
-    border-radius: 4px;
-    cursor: pointer;
-    display: flex; align-items: center; justify-content: center;
-    color: var(--ink-light);
-    font-size: 16px;
-    transition: all 0.15s;
-    flex-shrink: 0;
-  }
-  .btn-remove:hover { border-color: #e04040; color: #e04040; background: #fff5f5; }
-
-  @media (max-width: 600px) {
-    .lineas-header { display: none; }
-    .linea-row {
-      grid-template-columns: 1fr 1fr;
-      grid-template-rows: auto auto;
-      gap: 6px;
-      padding: 12px 0;
-    }
-    .linea-row select { grid-column: 1 / -1; }
-    .linea-row .btn-remove { width: 36px; height: 36px; }
-  }
-
-  /* ── Botón añadir línea ── */
-  .btn-add {
-    font-family: var(--font-body);
-    font-size: 13px;
-    font-weight: 500;
-    color: var(--accent);
-    background: var(--accent-light);
-    border: 1px dashed #d4937a;
-    border-radius: var(--radius);
-    padding: 9px 16px;
-    cursor: pointer;
-    width: 100%;
-    margin-top: 12px;
-    transition: all 0.15s;
-    letter-spacing: 0.2px;
-  }
-  .btn-add:hover { background: #f0d8cc; border-style: solid; }
-
-  /* ── Total ── */
-  .total-area {
-    display: flex;
-    justify-content: flex-end;
-    margin-top: 1rem;
-    padding-top: 1rem;
-    border-top: 2px solid var(--ink);
-  }
-  .total-box {
-    text-align: right;
-  }
-  .total-label {
-    font-size: 11px;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    color: var(--ink-light);
-    font-family: var(--font-mono);
-  }
-  .total-amount {
-    font-family: var(--font-display);
-    font-size: 32px;
-    font-weight: 600;
-    color: var(--ink);
-    line-height: 1.1;
-    margin-top: 2px;
-  }
-  .total-amount span { font-size: 16px; font-weight: 300; margin-right: 3px; }
-
-  /* ── Notas ── */
-  textarea { resize: vertical; min-height: 72px; }
-
-  /* ── Acciones ── */
-  .actions {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 1rem;
-    margin-top: 1.5rem;
-  }
-  @media (max-width: 500px) { .actions { grid-template-columns: 1fr; } }
-
-  .btn-primary {
-    font-family: var(--font-body);
-    font-size: 15px;
-    font-weight: 500;
-    color: #fff;
-    background: var(--ink);
-    border: none;
-    border-radius: var(--radius);
-    padding: 14px 20px;
-    cursor: pointer;
-    transition: all 0.15s;
-    display: flex; align-items: center; justify-content: center; gap: 8px;
-  }
-  .btn-primary:hover { background: #333330; transform: translateY(-1px); }
-  .btn-primary:active { transform: translateY(0); }
-  .btn-primary.green { background: var(--green); }
-  .btn-primary.green:hover { background: #255a42; }
-  .btn-primary:disabled { opacity: 0.45; cursor: not-allowed; transform: none; }
-
-  /* ── Toast / feedback ── */
-  .toast {
-    position: fixed;
-    bottom: 24px; left: 50%;
-    transform: translateX(-50%) translateY(80px);
-    background: var(--ink);
-    color: var(--paper);
-    padding: 12px 24px;
-    border-radius: 8px;
-    font-size: 14px;
-    font-weight: 500;
-    z-index: 999;
-    transition: transform 0.3s ease;
-    white-space: nowrap;
-    pointer-events: none;
-  }
-  .toast.show { transform: translateX(-50%) translateY(0); }
-  .toast.success { background: var(--green); }
-  .toast.error { background: #c0392b; }
-
-  /* ── Preview modal ── */
-  .modal-overlay {
-    position: fixed; inset: 0;
-    background: rgba(10,10,8,0.6);
-    z-index: 200;
-    display: none;
-    align-items: flex-start;
-    justify-content: center;
-    padding: 2rem 1rem;
-    overflow-y: auto;
-  }
-  .modal-overlay.open { display: flex; }
-  .modal {
-    background: #fff;
-    border-radius: 8px;
-    width: 100%;
-    max-width: 680px;
-    overflow: hidden;
-    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-  }
-  .modal-header {
-    background: var(--ink);
-    color: var(--paper);
-    padding: 1rem 1.5rem;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
-  .modal-header h2 {
-    font-family: var(--font-display);
-    font-size: 18px;
-    font-weight: 500;
-  }
-  .btn-close {
-    background: rgba(255,255,255,0.1);
-    border: none;
-    color: #fff;
-    width: 32px; height: 32px;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 18px;
-    display: flex; align-items: center; justify-content: center;
-  }
-  .btn-close:hover { background: rgba(255,255,255,0.2); }
-  .modal-body { padding: 0; }
-  .modal-actions {
-    padding: 1rem 1.5rem;
-    display: flex;
-    gap: 1rem;
-    border-top: 1px solid var(--border);
-    background: var(--paper);
-  }
-
-  /* ── Albarán preview (para imprimir) ── */
-  #albaran-print {
-    padding: 2rem 2.5rem;
-    font-family: var(--font-body);
-    font-size: 14px;
-    color: #111;
-  }
-  .alb-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 2rem; }
-  .alb-empresa { font-family: var(--font-display); font-size: 22px; font-weight: 600; color: #111; }
-  .alb-empresa-sub { font-size: 12px; color: #666; margin-top: 3px; }
-  .alb-num-box {
-    text-align: right;
-    background: #f5f0e8;
-    border-radius: 6px;
-    padding: 12px 16px;
-  }
-  .alb-num-label { font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: #888; font-family: 'DM Mono', monospace; }
-  .alb-num { font-family: 'DM Mono', monospace; font-size: 20px; font-weight: 500; color: #111; margin-top: 2px; }
-  .alb-num-date { font-size: 11px; color: #777; margin-top: 2px; }
-  .alb-divider { border: none; border-top: 2px solid #111; margin: 0 0 1.5rem; }
-  .alb-partes { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-bottom: 1.5rem; }
-  .alb-parte-label { font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: #888; font-family: 'DM Mono', monospace; margin-bottom: 6px; }
-  .alb-parte-name { font-size: 15px; font-weight: 500; }
-  .alb-parte-info { font-size: 12px; color: #555; margin-top: 2px; }
-  .alb-table { width: 100%; border-collapse: collapse; margin-bottom: 1.5rem; }
-  .alb-table th {
-    font-size: 10px; text-transform: uppercase; letter-spacing: 1px;
-    color: #888; font-family: 'DM Mono', monospace;
-    padding: 6px 8px; border-bottom: 1px solid #ccc; text-align: left;
-  }
-  .alb-table th:last-child, .alb-table td:last-child { text-align: right; }
-  .alb-table th:nth-child(2), .alb-table td:nth-child(2) { text-align: center; }
-  .alb-table th:nth-child(3), .alb-table td:nth-child(3) { text-align: right; }
-  .alb-table td { padding: 9px 8px; border-bottom: 1px solid #eee; font-size: 13px; }
-  .alb-table tr:last-child td { border-bottom: none; }
-  .alb-total-row { display: flex; justify-content: flex-end; }
-  .alb-total-box { text-align: right; border-top: 2px solid #111; padding-top: 10px; min-width: 200px; }
-  .alb-total-label { font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: #888; font-family: 'DM Mono', monospace; }
-  .alb-total-val { font-family: var(--font-display); font-size: 26px; font-weight: 600; margin-top: 2px; }
-  .alb-notas { background: #f8f6f0; border-radius: 6px; padding: 12px 14px; margin-top: 1rem; font-size: 12px; color: #555; }
-  .alb-notas-label { font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: #888; font-family: 'DM Mono', monospace; margin-bottom: 4px; }
-  .alb-footer { margin-top: 2rem; padding-top: 1rem; border-top: 1px solid #eee; display: flex; justify-content: space-between; font-size: 11px; color: #aaa; }
-
-  /* Alerta sin cliente/productos */
-  .alert {
-    background: #fff8e1;
-    border: 1px solid #f0d060;
-    border-radius: var(--radius);
-    padding: 10px 14px;
-    font-size: 13px;
-    color: #7a6000;
-    margin-bottom: 1rem;
-    display: none;
-  }
-  .alert.show { display: block; }
-
-  .spinner {
-    width: 18px; height: 18px;
-    border: 2px solid rgba(255,255,255,0.3);
-    border-top-color: #fff;
-    border-radius: 50%;
-    animation: spin 0.7s linear infinite;
-    display: none;
-  }
-  @keyframes spin { to { transform: rotate(360deg); } }
-
-  @media print {
-    body > * { display: none !important; }
-    .modal-overlay { display: block !important; background: none !important; padding: 0 !important; }
-    .modal { box-shadow: none !important; max-width: 100% !important; }
-    .modal-header, .modal-actions { display: none !important; }
-    #albaran-print { padding: 1.5cm 2cm !important; }
-  }
-</style>
-</head>
-<body>
-
-<header>
-  <div class="logo">Cocina<span>·</span>Central</div>
-  <div class="num-badge" id="next-num-badge">ALB-—</div>
-</header>
-
-<div class="main">
-  <div class="alert" id="alert-msg"></div>
-
-  <!-- Cliente -->
-  <div class="card">
-    <div class="section-label">01 — Cliente</div>
-    <div class="grid-2">
-      <div class="field">
-        <label for="sel-cliente">Seleccionar cliente</label>
-        <select id="sel-cliente" onchange="onClienteChange()">
-          <option value="">— Elegir cliente —</option>
-        </select>
-      </div>
-      <div class="field">
-        <label for="campo-fecha">Fecha de envío</label>
-        <input type="date" id="campo-fecha">
-      </div>
-    </div>
-    <div id="cliente-info" style="display:none; margin-top:1rem; padding: 10px 14px; background: var(--paper); border-radius: var(--radius); border: 1px solid var(--border);">
-      <div style="font-size:13px; color:var(--ink-mid);">
-        <span style="font-weight:500; color:var(--ink); font-size:14px;" id="ci-nombre"></span>
-        <span id="ci-extra" style="color:var(--ink-light);"></span>
-      </div>
-    </div>
-  </div>
-
-  <!-- Líneas -->
-  <div class="card">
-    <div class="section-label">02 — Productos</div>
-    <div class="lineas-header">
-      <span>Concepto</span>
-      <span>Cantidad</span>
-      <span>Precio unit.</span>
-      <span style="text-align:right;">Subtotal</span>
-      <span></span>
-    </div>
-    <div id="lineas-container"></div>
-    <button class="btn-add" onclick="addLinea()">+ Añadir línea</button>
-  </div>
-
-  <!-- Total -->
-  <div class="card" style="padding: 1rem 1.5rem;">
-    <div class="total-area">
-      <div class="total-box">
-        <div class="total-label">Base imponible total</div>
-        <div class="total-amount" id="total-display"><span>€</span>0,00</div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Notas -->
-  <div class="card">
-    <div class="section-label">03 — Notas (opcional)</div>
-    <div class="field">
-      <textarea id="campo-notas" placeholder="Observaciones del pedido, instrucciones de entrega…"></textarea>
-    </div>
-  </div>
-
-  <!-- Acciones -->
-  <div class="actions">
-    <button class="btn-primary green" onclick="generarAlbaran('drive')" id="btn-drive">
-      <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-      <span>Guardar en Drive</span>
-      <div class="spinner" id="sp-drive"></div>
-    </button>
-    <button class="btn-primary" onclick="previsualizarAlbaran()" id="btn-print">
-      <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
-      <span>Previsualizar e imprimir</span>
-    </button>
-  </div>
-</div>
-
-<!-- Modal preview -->
-<div class="modal-overlay" id="modal-overlay">
-  <div class="modal">
-    <div class="modal-header">
-      <h2>Albarán</h2>
-      <button class="btn-close" onclick="cerrarModal()">×</button>
-    </div>
-    <div class="modal-body">
-      <div id="albaran-print"></div>
-    </div>
-    <div class="modal-actions">
-      <button class="btn-primary" onclick="window.print()" style="flex:1;">
-        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
-        Imprimir
-      </button>
-      <button class="btn-primary green" onclick="generarAlbaran('drive-desde-modal')" style="flex:1;" id="btn-drive2">
-        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-        Guardar en Drive
-        <div class="spinner" id="sp-drive2"></div>
-      </button>
-    </div>
-  </div>
-</div>
-
-<div class="toast" id="toast"></div>
-
-<script>
-// ═══════════════════════════════════════════════════════
-// CONFIGURACIÓN — edita aquí tu Apps Script URL y datos empresa
-// ═══════════════════════════════════════════════════════
-const CONFIG = {
-  // URL de tu Google Apps Script (Web App) — ver INSTRUCCIONES.md
-  APPS_SCRIPT_URL: "https://script.google.com/macros/s/AKfycbzybPgDQzKMa0y54B4ILHMphRZveVhittDkXbRjhu9SNqMAPazVkig3EzTZurIh6VGAow/exec",
-
-  // Datos de tu empresa (aparecen en el albarán)
-  empresa: {
-    nombre: "Cocina Central S.L.",
-    direccion: "Polígono Industrial Norte, Nave 4",
-    ciudad: "46001 Valencia",
-    cif: "B-12345678",
-    tel: "+34 963 000 000",
-    email: "pedidos@cocinacentral.com"
-  }
+// Datos de tu empresa (aparecen en albaranes y facturas)
+const EMPRESA = {
+  nombre:    "Cocina Central S.L.",
+  direccion: "Polígono Industrial Norte, Nave 4",
+  ciudad:    "46001 Valencia",
+  cif:       "B-12345678",
+  tel:       "+34 963 000 000",
+  email:     "pedidos@cocinacentral.com",
+  iban:      "ES12 1234 5678 9012 3456 7890"  // para facturas
 };
 
-// ═══════════════════════════════════════════════════════
-// BASE DE DATOS LOCAL (se sincroniza con Google Sheets)
-// Por ahora con datos de ejemplo para probar la app
-// ═══════════════════════════════════════════════════════
-// ESTRUCTURA CLIENTES: { id, nombre, cif, direccion, ciudad, tarifas: { productoId: precio } }
-// ESTRUCTURA PRODUCTOS: { id, nombre, descripcion, unidad }
+// IVA aplicable en facturas (los albaranes NO llevan IVA)
+const IVA_PORCENTAJE = 10; // Cambia según tu tipo de IVA
 
-let CLIENTES = [
-  {
-    id: "cli001", nombre: "Restaurante La Plaza", cif: "B-98765432",
-    direccion: "C/ Mayor 12", ciudad: "Valencia",
-    tarifas: { "p001": 3.20, "p002": 1.80, "p003": 5.50, "p004": 2.10, "p005": 4.80 }
-  },
-  {
-    id: "cli002", nombre: "Catering El Jardín", cif: "B-11223344",
-    direccion: "Avda. del Puerto 45", ciudad: "Valencia",
-    tarifas: { "p001": 2.90, "p002": 1.60, "p003": 5.00, "p004": 1.95, "p005": 4.50 }
-  },
-  {
-    id: "cli003", nombre: "Hotel Mediterráneo", cif: "A-55667788",
-    direccion: "Paseo Marítimo 100", ciudad: "Valencia",
-    tarifas: { "p001": 3.50, "p002": 2.00, "p003": 6.00, "p004": 2.30, "p005": 5.20 }
-  }
-];
+// ── PUNTO DE ENTRADA HTTP GET ──────────────────────────────────
+function doGet(e) {
+  const action   = e.parameter.action;
+  const callback = e.parameter.callback; // para JSONP
+  let result;
 
-let PRODUCTOS = [
-  { id: "p001", nombre: "Croquetas de jamón", descripcion: "Croquetas artesanas de jamón ibérico", unidad: "ud" },
-  { id: "p002", nombre: "Ensaladilla rusa", descripcion: "Ensaladilla rusa tradicional", unidad: "kg" },
-  { id: "p003", nombre: "Paella valenciana", descripcion: "Ración de paella valenciana", unidad: "ración" },
-  { id: "p004", nombre: "Caldo de pollo", descripcion: "Caldo casero de pollo y verduras", unidad: "litro" },
-  { id: "p005", nombre: "Cocido madrileño", descripcion: "Cocido completo, ración individual", unidad: "ración" }
-];
-
-// ═══════════════════════════════════════════════════════
-// ESTADO
-// ═══════════════════════════════════════════════════════
-let lineas = [];
-let clienteActual = null;
-let nextNum = null;
-let contadorLocal = 1;
-
-// ═══════════════════════════════════════════════════════
-// INICIALIZACIÓN
-// ═══════════════════════════════════════════════════════
-window.onload = async () => {
-  // Fecha de hoy
-  const hoy = new Date();
-  document.getElementById("campo-fecha").value = hoy.toISOString().split("T")[0];
-
-  // Intentar cargar clientes y productos desde Sheets (si el script está configurado)
-  await cargarDatosDesdeSheets();
-
-  // Poblar select de clientes
-  poblarSelectClientes();
-
-  // Añadir primera línea vacía
-  addLinea();
-
-  // Cargar siguiente número
-  cargarSiguienteNumero();
-};
-
-async function cargarDatosDesdeSheets() {
-  if (CONFIG.APPS_SCRIPT_URL.includes("AKfycbzybPgDQzKMa0y54B4ILHMphRZveVhittDkXbRjhu9SNqMAPazVkig3EzTZurIh6VGAow")) return; // no configurado aún
-  try {
-    const [rCli, rProd] = await Promise.all([
-      fetch(CONFIG.APPS_SCRIPT_URL + "?action=getClientes"),
-      fetch(CONFIG.APPS_SCRIPT_URL + "?action=getProductos")
-    ]);
-    const dCli  = await rCli.json();
-    const dProd = await rProd.json();
-    if (dCli.clientes  && dCli.clientes.length)  CLIENTES  = dCli.clientes;
-    if (dProd.productos && dProd.productos.length) PRODUCTOS = dProd.productos;
-  } catch(e) {
-    // Sin conexión o script no publicado aún — usa datos de ejemplo locales
-  }
-}
-
-function poblarSelectClientes() {
-  const sel = document.getElementById("sel-cliente");
-  sel.innerHTML = '<option value="">— Elegir cliente —</option>';
-  CLIENTES.forEach(c => {
-    const opt = document.createElement("option");
-    opt.value = c.id;
-    opt.textContent = c.nombre;
-    sel.appendChild(opt);
-  });
-}
-
-async function cargarSiguienteNumero() {
-  try {
-    const r = await fetch(CONFIG.APPS_SCRIPT_URL + "?action=getNextNum");
-    const d = await r.json();
-    if (d.num) {
-      nextNum = d.num;
-      document.getElementById("next-num-badge").textContent = nextNum;
+  if (action === "getNextNum")        result = { num: getNextNumero("ALB", false) };
+  else if (action === "getClientes")  result = { clientes: getClientes() };
+  else if (action === "getProductos") result = { productos: getProductos() };
+  else if (action === "saveAlbaranB64") {
+    try {
+      const decoded = JSON.parse(decodeURIComponent(escape(Utilities.base64Decode(e.parameter.data, Utilities.Charset.UTF_8).map(b => String.fromCharCode(b & 0xff)).join(""))));
+      result = saveAlbaran(decoded.albaran, decoded.htmlContent);
+    } catch(err) {
+      result = { success: false, error: err.toString() };
     }
-  } catch(e) {
-    // Fallback local si no hay script configurado
-    const año = new Date().getFullYear();
-    nextNum = `ALB-${año}-${String(contadorLocal).padStart(4,"0")}`;
-    document.getElementById("next-num-badge").textContent = nextNum;
+  }
+  else result = { error: "Acción no reconocida" };
+
+  // Si viene callback, responder como JSONP
+  if (callback) {
+    return ContentService.createTextOutput(callback + "(" + JSON.stringify(result) + ");")
+      .setMimeType(ContentService.MimeType.JAVASCRIPT);
+  }
+  return jsonOut(result);
+}
+
+// ── PUNTO DE ENTRADA HTTP POST ─────────────────────────────────
+function doPost(e) {
+  let body;
+  try { body = JSON.parse(e.postData.contents); }
+  catch(err) { return jsonOut({ success: false, error: "JSON inválido" }); }
+
+  if (body.action === "saveAlbaran") return jsonOut(saveAlbaran(body.albaran, body.htmlContent));
+  return jsonOut({ success: false, error: "Acción no reconocida" });
+}
+
+function jsonOut(obj) {
+  return ContentService.createTextOutput(JSON.stringify(obj))
+    .setMimeType(ContentService.MimeType.JSON);
+}
+
+// ══════════════════════════════════════════════════════════════
+// NUMERACIÓN AUTOMÁTICA
+// ══════════════════════════════════════════════════════════════
+function getNextNumero(prefijo, incrementar) {
+  const ss   = SpreadsheetApp.openById(SPREADSHEET_ID);
+  const hoja = ss.getSheetByName(HOJA_CONTADOR);
+  const año  = new Date().getFullYear();
+
+  // Fila 1 = ALB (A1=año, B1=contador), Fila 2 = FAC (A2=año, B2=contador)
+  const fila = prefijo === "FAC" ? 2 : 1;
+  const añoGuardado = hoja.getRange(fila, 1).getValue();
+  let contador = hoja.getRange(fila, 2).getValue() || 0;
+
+  if (añoGuardado !== año) {
+    hoja.getRange(fila, 1).setValue(año);
+    contador = 0;
+  }
+
+  const siguiente = contador + 1;
+  const numFormato = `${prefijo}-${año}-${String(siguiente).padStart(4, "0")}`;
+  if (incrementar) hoja.getRange(fila, 2).setValue(siguiente);
+  return numFormato;
+}
+
+// ══════════════════════════════════════════════════════════════
+// GUARDAR ALBARÁN + EMAIL AL CLIENTE
+// ══════════════════════════════════════════════════════════════
+function saveAlbaran(albaran, htmlContent) {
+  try {
+    const numero = getNextNumero("ALB", true);
+    albaran.numero = numero;
+
+    const nombreCliente = albaran.cliente.nombre.replace(/[^a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\s]/g,"").replace(/\s+/g,"-");
+    const nombreArchivo = `${numero}-${nombreCliente}`;
+
+    // Generar PDF
+    const htmlCompleto = buildHTMLAlbaran(htmlContent);
+    const blob = Utilities.newBlob(htmlCompleto, "text/html", nombreArchivo + ".html")
+                           .getAs("application/pdf");
+    blob.setName(nombreArchivo + ".pdf");
+
+    // Guardar en Drive (subcarpeta por año/mes)
+    const carpetaDestino = getCarpeta("Albaranes");
+    const archivo = carpetaDestino.createFile(blob);
+
+    // Registrar en Sheets
+    registrarAlbaran(albaran, archivo.getUrl());
+
+    // Enviar email al cliente si tiene email registrado
+    let emailEnviado = false;
+    if (albaran.cliente.email) {
+      emailEnviado = enviarEmailAlbaran(albaran, blob);
+    }
+
+    return {
+      success: true,
+      numeroGuardado: numero,
+      driveUrl: archivo.getUrl(),
+      emailEnviado,
+      nextNum: getNextNumero("ALB", false)
+    };
+
+  } catch(err) {
+    return { success: false, error: err.toString() };
   }
 }
 
-// ═══════════════════════════════════════════════════════
-// CLIENTES
-// ═══════════════════════════════════════════════════════
-function onClienteChange() {
-  const id = document.getElementById("sel-cliente").value;
-  clienteActual = CLIENTES.find(c => c.id === id) || null;
-  const infoBox = document.getElementById("cliente-info");
-  if (clienteActual) {
-    document.getElementById("ci-nombre").textContent = clienteActual.nombre;
-    const emailStr = clienteActual.email ? " · " + clienteActual.email : " · (sin email — no se enviará albarán)";
-    document.getElementById("ci-extra").textContent = " · " + clienteActual.cif + " · " + clienteActual.ciudad + emailStr;
-    infoBox.style.display = "block";
-  } else {
-    infoBox.style.display = "none";
-  }
-  // Actualizar precios de líneas existentes
-  lineas.forEach((_, i) => actualizarPrecio(i));
-  calcularTotal();
-}
+// ══════════════════════════════════════════════════════════════
+// EMAIL ALBARÁN AL CLIENTE
+// ══════════════════════════════════════════════════════════════
+function enviarEmailAlbaran(albaran, pdfBlob) {
+  try {
+    const fecha = formatFecha(albaran.fecha);
+    const asunto = `Albarán ${albaran.numero} — ${EMPRESA.nombre}`;
 
-// ═══════════════════════════════════════════════════════
-// LÍNEAS DE PRODUCTO
-// ═══════════════════════════════════════════════════════
-let lineaId = 0;
+    const lineasHtml = albaran.lineas.map(l =>
+      `<tr>
+        <td style="padding:8px;border-bottom:1px solid #eee;">${l.nombre}</td>
+        <td style="padding:8px;border-bottom:1px solid #eee;text-align:center;">${l.cantidad} ${l.unidad}</td>
+        <td style="padding:8px;border-bottom:1px solid #eee;text-align:right;font-family:monospace;">€ ${l.precio.toFixed(2)}</td>
+        <td style="padding:8px;border-bottom:1px solid #eee;text-align:right;font-family:monospace;font-weight:bold;">€ ${l.subtotal.toFixed(2)}</td>
+      </tr>`
+    ).join("");
 
-function addLinea() {
-  const id = lineaId++;
-  lineas.push({ id, productoId: "", cantidad: 1, precio: 0 });
-  renderLineas();
-}
+    const cuerpoHtml = `
+    <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;color:#222;">
+      <div style="background:#1a1a18;padding:20px 24px;border-radius:6px 6px 0 0;">
+        <span style="color:#fff;font-size:18px;font-weight:600;">${EMPRESA.nombre}</span>
+      </div>
+      <div style="background:#f8f6f0;padding:16px 24px;border-bottom:2px solid #1a1a18;">
+        <span style="font-size:12px;color:#888;text-transform:uppercase;letter-spacing:1px;">Albarán de entrega</span>
+        <span style="font-size:20px;font-weight:600;margin-left:12px;font-family:monospace;">${albaran.numero}</span>
+        <span style="font-size:13px;color:#666;margin-left:8px;">${fecha}</span>
+      </div>
+      <div style="padding:20px 24px;">
+        <p style="margin:0 0 16px;">Estimado/a <strong>${albaran.cliente.nombre}</strong>,</p>
+        <p style="margin:0 0 20px;color:#555;">Le adjuntamos el albarán correspondiente al pedido del ${fecha}. Encontrará el detalle a continuación y el documento PDF adjunto.</p>
+        <table style="width:100%;border-collapse:collapse;margin-bottom:20px;">
+          <thead>
+            <tr style="background:#f0ece4;">
+              <th style="padding:8px;text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:1px;color:#888;">Concepto</th>
+              <th style="padding:8px;text-align:center;font-size:11px;text-transform:uppercase;letter-spacing:1px;color:#888;">Cant.</th>
+              <th style="padding:8px;text-align:right;font-size:11px;text-transform:uppercase;letter-spacing:1px;color:#888;">P. unit.</th>
+              <th style="padding:8px;text-align:right;font-size:11px;text-transform:uppercase;letter-spacing:1px;color:#888;">Importe</th>
+            </tr>
+          </thead>
+          <tbody>${lineasHtml}</tbody>
+        </table>
+        <div style="text-align:right;border-top:2px solid #1a1a18;padding-top:12px;">
+          <span style="font-size:11px;color:#888;text-transform:uppercase;letter-spacing:1px;">Base imponible</span>
+          <span style="font-size:24px;font-weight:700;margin-left:12px;">€ ${albaran.total.toFixed(2)}</span>
+          <p style="font-size:11px;color:#aaa;margin-top:4px;">IVA no incluido — se facturará a final de mes</p>
+        </div>
+        ${albaran.notas ? `<div style="background:#f8f6f0;padding:12px;border-radius:4px;margin-top:16px;font-size:12px;color:#555;"><strong>Notas:</strong> ${albaran.notas}</div>` : ""}
+      </div>
+      <div style="background:#f0ece4;padding:14px 24px;border-radius:0 0 6px 6px;font-size:11px;color:#888;">
+        ${EMPRESA.nombre} · ${EMPRESA.cif} · ${EMPRESA.email} · ${EMPRESA.tel}
+      </div>
+    </div>`;
 
-function removeLinea(id) {
-  lineas = lineas.filter(l => l.id !== id);
-  renderLineas();
-  calcularTotal();
-}
-
-function renderLineas() {
-  const cont = document.getElementById("lineas-container");
-  cont.innerHTML = "";
-  lineas.forEach((linea, idx) => {
-    const div = document.createElement("div");
-    div.className = "linea-row";
-    div.id = `linea-${linea.id}`;
-
-    // Select producto
-    let optsHtml = '<option value="">— Elegir producto —</option>';
-    PRODUCTOS.forEach(p => {
-      const sel = linea.productoId === p.id ? 'selected' : '';
-      optsHtml += `<option value="${p.id}" ${sel}>${p.nombre} (${p.unidad})</option>`;
-    });
-
-    const precio = linea.precio > 0 ? linea.precio.toFixed(2) : "—";
-    const subtotal = linea.productoId && linea.cantidad > 0 && linea.precio > 0
-      ? "€ " + (linea.cantidad * linea.precio).toFixed(2)
-      : "—";
-
-    div.innerHTML = `
-      <select onchange="onProductoChange(${linea.id}, this.value)">${optsHtml}</select>
-      <input type="number" min="0" step="0.01" value="${linea.cantidad}"
-        onchange="onCantidadChange(${linea.id}, this.value)"
-        placeholder="0">
-      <div class="precio-unitario" id="precio-${linea.id}">€ ${precio}</div>
-      <div class="subtotal-cell" id="sub-${linea.id}">${subtotal}</div>
-      <button class="btn-remove" onclick="removeLinea(${linea.id})" title="Eliminar línea">×</button>
-    `;
-    cont.appendChild(div);
-  });
-}
-
-function onProductoChange(id, productoId) {
-  const idx = lineas.findIndex(l => l.id === id);
-  lineas[idx].productoId = productoId;
-  actualizarPrecio(idx);
-  calcularTotal();
-}
-
-function onCantidadChange(id, val) {
-  const idx = lineas.findIndex(l => l.id === id);
-  lineas[idx].cantidad = parseFloat(val) || 0;
-  actualizarSubtotal(idx);
-  calcularTotal();
-}
-
-function actualizarPrecio(idx) {
-  const linea = lineas[idx];
-  let precio = 0;
-  if (linea.productoId && clienteActual) {
-    precio = clienteActual.tarifas[linea.productoId] || 0;
-  }
-  lineas[idx].precio = precio;
-  const el = document.getElementById(`precio-${linea.id}`);
-  if (el) el.textContent = precio > 0 ? `€ ${precio.toFixed(2)}` : "—";
-  actualizarSubtotal(idx);
-}
-
-function actualizarSubtotal(idx) {
-  const linea = lineas[idx];
-  const el = document.getElementById(`sub-${linea.id}`);
-  if (!el) return;
-  if (linea.productoId && linea.cantidad > 0 && linea.precio > 0) {
-    el.textContent = "€ " + (linea.cantidad * linea.precio).toFixed(2);
-  } else {
-    el.textContent = "—";
-  }
-}
-
-function calcularTotal() {
-  const total = lineas.reduce((acc, l) => {
-    if (l.productoId && l.cantidad > 0 && l.precio > 0) acc += l.cantidad * l.precio;
-    return acc;
-  }, 0);
-  document.getElementById("total-display").innerHTML =
-    `<span>€</span>${total.toFixed(2).replace(".", ",")}`;
-  return total;
-}
-
-// ═══════════════════════════════════════════════════════
-// VALIDACIÓN
-// ═══════════════════════════════════════════════════════
-function validar() {
-  const alertEl = document.getElementById("alert-msg");
-  if (!clienteActual) {
-    showAlert("Selecciona un cliente antes de generar el albarán.");
+    GmailApp.sendEmail(
+      albaran.cliente.email,
+      asunto,
+      `Albarán ${albaran.numero} adjunto. Base imponible: € ${albaran.total.toFixed(2)}`,
+      {
+        htmlBody: cuerpoHtml,
+        attachments: [pdfBlob],
+        name: EMPRESA.nombre,
+        replyTo: EMPRESA.email
+      }
+    );
+    return true;
+  } catch(err) {
+    Logger.log("Error email: " + err);
     return false;
   }
-  const lineasValidas = lineas.filter(l => l.productoId && l.cantidad > 0 && l.precio > 0);
-  if (lineasValidas.length === 0) {
-    showAlert("Añade al menos un producto con cantidad válida.");
-    return false;
-  }
-  alertEl.classList.remove("show");
-  return true;
-}
-function showAlert(msg) {
-  const el = document.getElementById("alert-msg");
-  el.textContent = msg;
-  el.classList.add("show");
-  el.scrollIntoView({ behavior: "smooth", block: "nearest" });
 }
 
-// ═══════════════════════════════════════════════════════
-// CONSTRUCCIÓN DEL ALBARÁN (datos)
-// ═══════════════════════════════════════════════════════
-function buildAlbaranData() {
-  const fecha = document.getElementById("campo-fecha").value;
-  const notas = document.getElementById("campo-notas").value.trim();
-  const lineasValidas = lineas.filter(l => l.productoId && l.cantidad > 0 && l.precio > 0);
-  const total = lineasValidas.reduce((a, l) => a + l.cantidad * l.precio, 0);
+// ══════════════════════════════════════════════════════════════
+// GENERAR FACTURAS MENSUALES
+// Agrupa todos los albaranes del mes por cliente y genera una
+// factura por cliente con todos sus albaranes como líneas.
+// Se puede lanzar manualmente o programar el último día del mes.
+// ══════════════════════════════════════════════════════════════
+function generarFacturasMensuales(mesOverride, añoOverride) {
+  const hoy   = new Date();
+  const mes   = mesOverride  !== undefined ? mesOverride  : hoy.getMonth();     // 0-11
+  const año   = añoOverride  !== undefined ? añoOverride  : hoy.getFullYear();
+  const mesNombre = ["Enero","Febrero","Marzo","Abril","Mayo","Junio",
+                     "Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"][mes];
 
-  return {
-    numero: nextNum,
-    fecha,
-    empresa: CONFIG.empresa,
-    cliente: clienteActual,
-    lineas: lineasValidas.map(l => {
-      const prod = PRODUCTOS.find(p => p.id === l.productoId);
-      return {
-        nombre: prod.nombre,
-        descripcion: prod.descripcion,
-        unidad: prod.unidad,
-        cantidad: l.cantidad,
-        precio: l.precio,
-        subtotal: +(l.cantidad * l.precio).toFixed(2)
+  const ss       = SpreadsheetApp.openById(SPREADSHEET_ID);
+  const hReg     = ss.getSheetByName(HOJA_REGISTRO);
+  if (!hReg) { Logger.log("No existe hoja Registro"); return; }
+
+  const datos = hReg.getDataRange().getValues();
+  // Columnas: 0=Número,1=Fecha,2=Cliente,3=CIF,4=BaseImponible,5=Líneas,6=DriveURL,7=GeneradoEn,8=EmailCliente
+
+  // Filtrar albaranes del mes/año y agrupar por cliente
+  const porCliente = {};
+  for (let i = 1; i < datos.length; i++) {
+    const fila = datos[i];
+    if (!fila[0]) continue;
+
+    const fechaAlb = new Date(fila[1]);
+    if (fechaAlb.getMonth() !== mes || fechaAlb.getFullYear() !== año) continue;
+
+    // Saltar si ya tiene factura asignada (col 9)
+    if (fila[9]) continue;
+
+    const cif = fila[3].toString();
+    if (!porCliente[cif]) {
+      porCliente[cif] = {
+        nombre:   fila[2].toString(),
+        cif:      cif,
+        email:    fila[8] ? fila[8].toString() : "",
+        albaranes: []
       };
-    }),
-    total: +total.toFixed(2),
-    notas
-  };
-}
-
-// ═══════════════════════════════════════════════════════
-// RENDER HTML DEL ALBARÁN (para imprimir y guardar)
-// ═══════════════════════════════════════════════════════
-function renderAlbaranHTML(data) {
-  const fechaFmt = new Date(data.fecha + "T12:00:00").toLocaleDateString("es-ES", { day:"2-digit", month:"long", year:"numeric" });
-  const filas = data.lineas.map(l => `
-    <tr>
-      <td><strong>${l.nombre}</strong><br><span style="color:#777;font-size:11px;">${l.descripcion}</span></td>
-      <td style="text-align:center;">${l.cantidad} ${l.unidad}</td>
-      <td style="text-align:right;font-family:'DM Mono',monospace;">€ ${l.precio.toFixed(2)}</td>
-      <td style="text-align:right;font-family:'DM Mono',monospace;font-weight:500;">€ ${l.subtotal.toFixed(2)}</td>
-    </tr>
-  `).join("");
-
-  const notasBloque = data.notas ? `
-    <div class="alb-notas">
-      <div class="alb-notas-label">Notas</div>
-      ${data.notas}
-    </div>` : "";
-
-  return `
-    <div id="albaran-print">
-      <div class="alb-header">
-        <div>
-          <div class="alb-empresa">${data.empresa.nombre}</div>
-          <div class="alb-empresa-sub">${data.empresa.direccion} · ${data.empresa.ciudad}</div>
-          <div class="alb-empresa-sub">CIF ${data.empresa.cif} · ${data.empresa.tel}</div>
-        </div>
-        <div class="alb-num-box">
-          <div class="alb-num-label">Albarán</div>
-          <div class="alb-num">${data.numero}</div>
-          <div class="alb-num-date">${fechaFmt}</div>
-        </div>
-      </div>
-      <hr class="alb-divider">
-      <div class="alb-partes">
-        <div>
-          <div class="alb-parte-label">Vendedor</div>
-          <div class="alb-parte-name">${data.empresa.nombre}</div>
-          <div class="alb-parte-info">${data.empresa.email}</div>
-        </div>
-        <div>
-          <div class="alb-parte-label">Cliente</div>
-          <div class="alb-parte-name">${data.cliente.nombre}</div>
-          <div class="alb-parte-info">${data.cliente.cif} · ${data.cliente.ciudad}</div>
-          <div class="alb-parte-info">${data.cliente.direccion}</div>
-        </div>
-      </div>
-      <table class="alb-table">
-        <thead>
-          <tr>
-            <th>Concepto</th>
-            <th>Cantidad</th>
-            <th>Precio unit.</th>
-            <th>Importe</th>
-          </tr>
-        </thead>
-        <tbody>${filas}</tbody>
-      </table>
-      <div class="alb-total-row">
-        <div class="alb-total-box">
-          <div class="alb-total-label">Base imponible</div>
-          <div class="alb-total-val">€ ${data.total.toFixed(2)}</div>
-          <div style="font-size:11px;color:#888;margin-top:4px;">IVA no incluido · se facturará aparte</div>
-        </div>
-      </div>
-      ${notasBloque}
-      <div class="alb-footer">
-        <span>${data.empresa.nombre} · ${data.empresa.cif}</span>
-        <span>Documento generado el ${new Date().toLocaleDateString("es-ES")}</span>
-      </div>
-    </div>
-  `;
-}
-
-// ═══════════════════════════════════════════════════════
-// PREVISUALIZAR
-// ═══════════════════════════════════════════════════════
-function previsualizarAlbaran() {
-  if (!validar()) return;
-  const data = buildAlbaranData();
-  document.querySelector(".modal-body").innerHTML = renderAlbaranHTML(data);
-  document.getElementById("modal-overlay").classList.add("open");
-}
-function cerrarModal() {
-  document.getElementById("modal-overlay").classList.remove("open");
-}
-
-// ═══════════════════════════════════════════════════════
-// GUARDAR EN DRIVE
-// ═══════════════════════════════════════════════════════
-async function generarAlbaran(origen) {
-  if (!validar()) return;
-
-  const spId = origen === "drive-desde-modal" ? "sp-drive2" : "sp-drive";
-  const btnId = origen === "drive-desde-modal" ? "btn-drive2" : "btn-drive";
-  const data = buildAlbaranData();
-  const htmlContent = renderAlbaranHTML(data);
-
-  // UI loading
-  document.getElementById(spId).style.display = "block";
-  document.getElementById(btnId).disabled = true;
-
-  try {
-    const resp = await fetch(CONFIG.APPS_SCRIPT_URL, {
-      method: "POST",
-      mode: "no-cors",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        action: "saveAlbaran",
-        albaran: data,
-        htmlContent
-      })
-    });
-    const result = await resp.json();
-
-    if (result.success) {
-      nextNum = result.nextNum || nextNum;
-      document.getElementById("next-num-badge").textContent = nextNum;
-      const emailMsg = result.emailEnviado ? " · Email enviado al cliente" : "";
-      showToast("✓ " + data.numero + " guardado en Drive" + emailMsg, "success");
-      if (origen === "drive-desde-modal") cerrarModal();
-      resetForm();
-    } else {
-      showToast("Error al guardar: " + (result.error || "revisa la configuración"), "error");
     }
-  } catch(e) {
-    // Modo demo sin script configurado
-    showToast("⚠ Apps Script no configurado — descarga el albarán manualmente", "error");
-    // Ofrecer descarga HTML local
-    const blob = new Blob([`<!DOCTYPE html><html><head><meta charset="UTF-8"><link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Fraunces:opsz,wght@9..144,600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"><style>body{font-family:'DM Sans',sans-serif;padding:2cm;}${getAlbaranCSS()}</style></head><body>${htmlContent}</body></html>`], { type: "text/html" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a"); a.href = url;
-    a.download = `${data.numero}-${data.cliente.nombre.replace(/\s+/g,"-")}.html`;
-    a.click();
-  } finally {
-    document.getElementById(spId).style.display = "none";
-    document.getElementById(btnId).disabled = false;
+    porCliente[cif].albaranes.push({
+      fila:    i + 1, // fila real en sheets (1-indexed + cabecera)
+      numero:  fila[0].toString(),
+      fecha:   fila[1],
+      base:    parseFloat(fila[4]) || 0,
+      lineas:  fila[5].toString(),
+      url:     fila[6].toString()
+    });
+  }
+
+  const clientesList = Object.values(porCliente);
+  if (clientesList.length === 0) {
+    Logger.log(`No hay albaranes sin facturar en ${mesNombre} ${año}`);
+    return { facturas: [], mensaje: `No hay albaranes pendientes en ${mesNombre} ${año}` };
+  }
+
+  const facturasGeneradas = [];
+
+  clientesList.forEach(cliente => {
+    const numFac  = getNextNumero("FAC", true);
+    const baseTotal = cliente.albaranes.reduce((a, alb) => a + alb.base, 0);
+    const cuotaIva  = baseTotal * IVA_PORCENTAJE / 100;
+    const total     = baseTotal + cuotaIva;
+
+    const factura = {
+      numero:      numFac,
+      fecha:       Utilities.formatDate(hoy, "Europe/Madrid", "yyyy-MM-dd"),
+      periodo:     `${mesNombre} ${año}`,
+      empresa:     EMPRESA,
+      cliente,
+      albaranes:   cliente.albaranes,
+      baseTotal,
+      cuotaIva,
+      ivaPorcentaje: IVA_PORCENTAJE,
+      total
+    };
+
+    // Generar PDF factura
+    const htmlFac  = buildHTMLFactura(factura);
+    const nombreCli = cliente.nombre.replace(/[^a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\s]/g,"").replace(/\s+/g,"-");
+    const nombreArchivo = `${numFac}-${mesNombre}${año}-${nombreCli}`;
+
+    const blob = Utilities.newBlob(htmlFac, "text/html", nombreArchivo + ".html")
+                           .getAs("application/pdf");
+    blob.setName(nombreArchivo + ".pdf");
+
+    // Guardar en Drive/Facturas/2024/
+    const carpeta = getCarpeta("Facturas");
+    const archivo  = carpeta.createFile(blob);
+
+    // Registrar factura en hoja Facturas
+    registrarFactura(factura, archivo.getUrl());
+
+    // Marcar albaranes como facturados en hoja Registro (col J = 10ª)
+    cliente.albaranes.forEach(alb => {
+      hReg.getRange(alb.fila, 10).setValue(numFac);
+    });
+
+    // Enviar email al cliente
+    let emailEnviado = false;
+    if (cliente.email) {
+      emailEnviado = enviarEmailFactura(factura, blob);
+    }
+
+    facturasGeneradas.push({ numero: numFac, cliente: cliente.nombre, total, emailEnviado, url: archivo.getUrl() });
+    Logger.log(`✓ Factura ${numFac} — ${cliente.nombre} — € ${total.toFixed(2)}`);
+  });
+
+  return { facturas: facturasGeneradas, mes: mesNombre, año };
+}
+
+// ── Registrar factura en hoja ──────────────────────────────────
+function registrarFactura(factura, driveUrl) {
+  const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+  let hoja = ss.getSheetByName("Facturas");
+  if (!hoja) {
+    hoja = ss.insertSheet("Facturas");
+    hoja.appendRow(["Número","Fecha","Periodo","Cliente","CIF","Base","IVA %","Cuota IVA","Total","Albaranes","Drive URL"]);
+    hoja.getRange("1:1").setFontWeight("bold");
+  }
+  const nums = factura.albaranes.map(a => a.numero).join(", ");
+  hoja.appendRow([
+    factura.numero, factura.fecha, factura.periodo,
+    factura.cliente.nombre, factura.cliente.cif,
+    factura.baseTotal, factura.ivaPorcentaje, factura.cuotaIva,
+    factura.total, nums, driveUrl
+  ]);
+}
+
+// ── Email factura al cliente ───────────────────────────────────
+function enviarEmailFactura(factura, pdfBlob) {
+  try {
+    const asunto = `Factura ${factura.numero} — ${factura.periodo} — ${EMPRESA.nombre}`;
+
+    const filasAlb = factura.albaranes.map(alb =>
+      `<tr>
+        <td style="padding:8px;border-bottom:1px solid #eee;font-family:monospace;">${alb.numero}</td>
+        <td style="padding:8px;border-bottom:1px solid #eee;">${formatFecha(alb.fecha)}</td>
+        <td style="padding:8px;border-bottom:1px solid #eee;font-size:12px;color:#555;">${alb.lineas}</td>
+        <td style="padding:8px;border-bottom:1px solid #eee;text-align:right;font-family:monospace;font-weight:bold;">€ ${alb.base.toFixed(2)}</td>
+      </tr>`
+    ).join("");
+
+    const cuerpoHtml = `
+    <div style="font-family:Arial,sans-serif;max-width:620px;margin:0 auto;color:#222;">
+      <div style="background:#1a1a18;padding:20px 24px;border-radius:6px 6px 0 0;">
+        <span style="color:#fff;font-size:18px;font-weight:600;">${EMPRESA.nombre}</span>
+      </div>
+      <div style="background:#f8f6f0;padding:16px 24px;border-bottom:2px solid #1a1a18;">
+        <span style="font-size:12px;color:#888;text-transform:uppercase;letter-spacing:1px;">Factura</span>
+        <span style="font-size:20px;font-weight:600;margin-left:12px;font-family:monospace;">${factura.numero}</span>
+        <span style="font-size:13px;color:#666;margin-left:8px;">Periodo: ${factura.periodo}</span>
+      </div>
+      <div style="padding:20px 24px;">
+        <p style="margin:0 0 16px;">Estimado/a <strong>${factura.cliente.nombre}</strong>,</p>
+        <p style="margin:0 0 20px;color:#555;">Le remitimos la factura correspondiente al periodo <strong>${factura.periodo}</strong>, que agrupa los siguientes albaranes:</p>
+        <table style="width:100%;border-collapse:collapse;margin-bottom:20px;">
+          <thead>
+            <tr style="background:#f0ece4;">
+              <th style="padding:8px;text-align:left;font-size:11px;color:#888;text-transform:uppercase;">Albarán</th>
+              <th style="padding:8px;text-align:left;font-size:11px;color:#888;text-transform:uppercase;">Fecha</th>
+              <th style="padding:8px;text-align:left;font-size:11px;color:#888;text-transform:uppercase;">Detalle</th>
+              <th style="padding:8px;text-align:right;font-size:11px;color:#888;text-transform:uppercase;">Base</th>
+            </tr>
+          </thead>
+          <tbody>${filasAlb}</tbody>
+        </table>
+        <div style="background:#f8f6f0;padding:16px;border-radius:6px;margin-bottom:16px;">
+          <table style="width:100%;">
+            <tr>
+              <td style="color:#555;padding:4px 0;">Base imponible</td>
+              <td style="text-align:right;font-family:monospace;">€ ${factura.baseTotal.toFixed(2)}</td>
+            </tr>
+            <tr>
+              <td style="color:#555;padding:4px 0;">IVA ${factura.ivaPorcentaje}%</td>
+              <td style="text-align:right;font-family:monospace;">€ ${factura.cuotaIva.toFixed(2)}</td>
+            </tr>
+            <tr style="border-top:2px solid #1a1a18;">
+              <td style="padding:8px 0 0;font-weight:700;font-size:15px;">TOTAL</td>
+              <td style="text-align:right;font-family:monospace;font-weight:700;font-size:18px;padding-top:8px;">€ ${factura.total.toFixed(2)}</td>
+            </tr>
+          </table>
+        </div>
+        <p style="font-size:12px;color:#666;">Forma de pago: transferencia bancaria<br>
+        IBAN: <strong>${EMPRESA.iban}</strong><br>
+        Concepto: ${factura.numero}</p>
+      </div>
+      <div style="background:#f0ece4;padding:14px 24px;border-radius:0 0 6px 6px;font-size:11px;color:#888;">
+        ${EMPRESA.nombre} · ${EMPRESA.cif} · ${EMPRESA.email}
+      </div>
+    </div>`;
+
+    GmailApp.sendEmail(
+      factura.cliente.email, asunto,
+      `Factura ${factura.numero} (${factura.periodo}) adjunta. Total: € ${factura.total.toFixed(2)}`,
+      { htmlBody: cuerpoHtml, attachments: [pdfBlob], name: EMPRESA.nombre, replyTo: EMPRESA.email }
+    );
+    return true;
+  } catch(err) {
+    Logger.log("Error email factura: " + err);
+    return false;
   }
 }
 
-function getAlbaranCSS() {
-  return `.alb-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:2rem}.alb-empresa{font-family:'Fraunces',serif;font-size:22px;font-weight:600}.alb-empresa-sub{font-size:12px;color:#666;margin-top:3px}.alb-num-box{text-align:right;background:#f5f0e8;border-radius:6px;padding:12px 16px}.alb-num-label{font-size:10px;text-transform:uppercase;letter-spacing:1px;color:#888;font-family:'DM Mono',monospace}.alb-num{font-family:'DM Mono',monospace;font-size:20px;font-weight:500}.alb-num-date{font-size:11px;color:#777;margin-top:2px}.alb-divider{border:none;border-top:2px solid #111;margin:0 0 1.5rem}.alb-partes{display:grid;grid-template-columns:1fr 1fr;gap:2rem;margin-bottom:1.5rem}.alb-parte-label{font-size:10px;text-transform:uppercase;letter-spacing:1px;color:#888;font-family:'DM Mono',monospace;margin-bottom:6px}.alb-parte-name{font-size:15px;font-weight:500}.alb-parte-info{font-size:12px;color:#555;margin-top:2px}.alb-table{width:100%;border-collapse:collapse;margin-bottom:1.5rem}.alb-table th{font-size:10px;text-transform:uppercase;letter-spacing:1px;color:#888;font-family:'DM Mono',monospace;padding:6px 8px;border-bottom:1px solid #ccc;text-align:left}.alb-table td{padding:9px 8px;border-bottom:1px solid #eee;font-size:13px}.alb-total-row{display:flex;justify-content:flex-end}.alb-total-box{text-align:right;border-top:2px solid #111;padding-top:10px;min-width:200px}.alb-total-label{font-size:10px;text-transform:uppercase;letter-spacing:1px;color:#888;font-family:'DM Mono',monospace}.alb-total-val{font-family:'Fraunces',serif;font-size:26px;font-weight:600}.alb-notas{background:#f8f6f0;border-radius:6px;padding:12px 14px;margin-top:1rem;font-size:12px;color:#555}.alb-footer{margin-top:2rem;padding-top:1rem;border-top:1px solid #eee;display:flex;justify-content:space-between;font-size:11px;color:#aaa}`;
+// ══════════════════════════════════════════════════════════════
+// PROGRAMAR FACTURACIÓN AUTOMÁTICA (último día del mes)
+// Ejecuta esta función UNA SOLA VEZ para instalar el trigger
+// ══════════════════════════════════════════════════════════════
+function instalarTriggerMensual() {
+  // Eliminar triggers anteriores del mismo nombre
+  ScriptApp.getProjectTriggers().forEach(t => {
+    if (t.getHandlerFunction() === "triggerFacturasMensuales") ScriptApp.deleteTrigger(t);
+  });
+  // Programar para el día 1 de cada mes a las 08:00
+  // (factura el mes anterior)
+  ScriptApp.newTrigger("triggerFacturasMensuales")
+    .timeBased()
+    .onMonthDay(1)
+    .atHour(8)
+    .create();
+  Logger.log("✓ Trigger mensual instalado: día 1 de cada mes a las 08:00");
 }
 
-// ═══════════════════════════════════════════════════════
-// RESET
-// ═══════════════════════════════════════════════════════
-function resetForm() {
-  document.getElementById("sel-cliente").value = "";
-  clienteActual = null;
-  document.getElementById("cliente-info").style.display = "none";
-  document.getElementById("campo-notas").value = "";
-  lineas = [];
-  lineaId = 0;
-  addLinea();
-  calcularTotal();
-  // Actualizar número
-  cargarSiguienteNumero();
+function triggerFacturasMensuales() {
+  // Se ejecuta el día 1 — factura el mes anterior
+  const hoy     = new Date();
+  const mesAnt  = hoy.getMonth() === 0 ? 11 : hoy.getMonth() - 1;
+  const añoAnt  = hoy.getMonth() === 0 ? hoy.getFullYear() - 1 : hoy.getFullYear();
+  const result  = generarFacturasMensuales(mesAnt, añoAnt);
+  Logger.log("Facturación automática: " + JSON.stringify(result));
+  // Notificar al admin
+  GmailApp.sendEmail(
+    EMPRESA.email,
+    `✓ Facturación automática completada — ${result.mes} ${result.año}`,
+    `Se han generado ${result.facturas ? result.facturas.length : 0} facturas.\n\n` +
+    (result.facturas || []).map(f => `• ${f.numero} — ${f.cliente} — € ${f.total.toFixed(2)}`).join("\n")
+  );
 }
 
-// ═══════════════════════════════════════════════════════
-// TOAST
-// ═══════════════════════════════════════════════════════
-let toastTimer;
-function showToast(msg, type = "") {
-  const t = document.getElementById("toast");
-  t.textContent = msg;
-  t.className = "toast show" + (type ? " " + type : "");
-  clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => t.classList.remove("show"), 3500);
+// ── Lanzar facturación manualmente desde el script ─────────────
+// Llama a: generarFacturasMensuales(4, 2025)  → Mayo 2025
+// O sin parámetros para el mes en curso:      generarFacturasMensuales()
+
+// ══════════════════════════════════════════════════════════════
+// HELPERS — CARPETAS DRIVE
+// ══════════════════════════════════════════════════════════════
+function getCarpeta(tipo) {
+  const raiz     = DriveApp.getFolderById(DRIVE_FOLDER_ID);
+  const añoStr   = String(new Date().getFullYear());
+
+  // Subcarpeta tipo (Albaranes / Facturas)
+  let carpetaTipo;
+  const it1 = raiz.getFoldersByName(tipo);
+  carpetaTipo = it1.hasNext() ? it1.next() : raiz.createFolder(tipo);
+
+  // Subcarpeta año
+  let carpetaAño;
+  const it2 = carpetaTipo.getFoldersByName(añoStr);
+  carpetaAño = it2.hasNext() ? it2.next() : carpetaTipo.createFolder(añoStr);
+
+  return carpetaAño;
 }
 
-// Cerrar modal al click fuera
-document.getElementById("modal-overlay").addEventListener("click", function(e) {
-  if (e.target === this) cerrarModal();
-});
-</script>
-</body>
-</html>
+// ══════════════════════════════════════════════════════════════
+// REGISTRO
+// ══════════════════════════════════════════════════════════════
+function registrarAlbaran(albaran, driveUrl) {
+  const ss   = SpreadsheetApp.openById(SPREADSHEET_ID);
+  let hoja   = ss.getSheetByName(HOJA_REGISTRO);
+  if (!hoja) {
+    hoja = ss.insertSheet(HOJA_REGISTRO);
+    // Col I (9) = email cliente, Col J (10) = nº factura cuando se facture
+    hoja.appendRow(["Número","Fecha","Cliente","CIF","Base imponible","Líneas","Drive URL","Generado en","Email cliente","Factura"]);
+    hoja.getRange("1:1").setFontWeight("bold");
+  }
+  hoja.appendRow([
+    albaran.numero, albaran.fecha,
+    albaran.cliente.nombre, albaran.cliente.cif,
+    albaran.total,
+    albaran.lineas.map(l => `${l.nombre} x${l.cantidad}`).join(", "),
+    driveUrl, new Date(),
+    albaran.cliente.email || "",
+    "" // se rellenará al facturar
+  ]);
+}
+
+// ══════════════════════════════════════════════════════════════
+// LEER CLIENTES DESDE SHEETS
+// Col: A=ID, B=Nombre, C=CIF, D=Dirección, E=Ciudad, F=Email
+// Desde G en adelante: pares ProductoID/Precio
+// ══════════════════════════════════════════════════════════════
+function getClientes() {
+  const ss   = SpreadsheetApp.openById(SPREADSHEET_ID);
+  const hoja = ss.getSheetByName("Clientes");
+  if (!hoja) return [];
+  const datos = hoja.getDataRange().getValues();
+  const clientes = [];
+  for (let i = 1; i < datos.length; i++) {
+    const f = datos[i];
+    if (!f[0]) continue;
+    const tarifas = {};
+    for (let j = 6; j < f.length - 1; j += 2) {
+      if (f[j] && f[j+1]) tarifas[f[j].toString()] = parseFloat(f[j+1]);
+    }
+    clientes.push({ id: f[0].toString(), nombre: f[1].toString(), cif: f[2].toString(),
+                    direccion: f[3].toString(), ciudad: f[4].toString(), email: f[5].toString(), tarifas });
+  }
+  return clientes;
+}
+
+// ══════════════════════════════════════════════════════════════
+// LEER PRODUCTOS DESDE SHEETS
+// Col: A=ID, B=Nombre, C=Descripción, D=Unidad
+// ══════════════════════════════════════════════════════════════
+function getProductos() {
+  const ss   = SpreadsheetApp.openById(SPREADSHEET_ID);
+  const hoja = ss.getSheetByName("Productos");
+  if (!hoja) return [];
+  const datos = hoja.getDataRange().getValues();
+  const productos = [];
+  for (let i = 1; i < datos.length; i++) {
+    const f = datos[i];
+    if (!f[0]) continue;
+    productos.push({ id: f[0].toString(), nombre: f[1].toString(),
+                     descripcion: f[2].toString(), unidad: f[3].toString() });
+  }
+  return productos;
+}
+
+// ══════════════════════════════════════════════════════════════
+// HTML DEL ALBARÁN (para PDF)
+// ══════════════════════════════════════════════════════════════
+function buildHTMLAlbaran(bodyContent) {
+  return `<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8">
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:Arial,sans-serif;font-size:13px;color:#111;padding:1.5cm 2cm}
+    .alb-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:1.5rem}
+    .alb-empresa{font-size:20px;font-weight:700}
+    .alb-empresa-sub{font-size:11px;color:#666;margin-top:3px}
+    .alb-num-box{text-align:right;background:#f5f0e8;border-radius:6px;padding:10px 14px}
+    .alb-num-label{font-size:9px;text-transform:uppercase;letter-spacing:1px;color:#888}
+    .alb-num{font-size:18px;font-weight:700;font-family:monospace}
+    .alb-num-date{font-size:10px;color:#777;margin-top:2px}
+    hr{border:none;border-top:2px solid #111;margin:0 0 1.2rem}
+    .alb-partes{display:grid;grid-template-columns:1fr 1fr;gap:2rem;margin-bottom:1.2rem}
+    .alb-parte-label{font-size:9px;text-transform:uppercase;letter-spacing:1px;color:#888;margin-bottom:5px}
+    .alb-parte-name{font-size:14px;font-weight:600}
+    .alb-parte-info{font-size:11px;color:#555;margin-top:2px}
+    table{width:100%;border-collapse:collapse;margin-bottom:1.2rem}
+    th{font-size:9px;text-transform:uppercase;letter-spacing:1px;color:#888;padding:5px 7px;border-bottom:1px solid #ccc;text-align:left}
+    th:nth-child(2),th:nth-child(3),th:nth-child(4){text-align:right}
+    td{padding:8px 7px;border-bottom:1px solid #eee;font-size:12px}
+    td:nth-child(2),td:nth-child(3),td:nth-child(4){text-align:right;font-family:monospace}
+    .total-row{display:flex;justify-content:flex-end}
+    .total-box{text-align:right;border-top:2px solid #111;padding-top:8px;min-width:180px}
+    .total-label{font-size:9px;text-transform:uppercase;letter-spacing:1px;color:#888}
+    .total-val{font-size:22px;font-weight:700;margin-top:2px}
+    .notas{background:#f8f6f0;border-radius:5px;padding:10px 12px;margin-top:1rem;font-size:11px;color:#555}
+    .footer{margin-top:1.5rem;padding-top:.8rem;border-top:1px solid #eee;display:flex;justify-content:space-between;font-size:10px;color:#aaa}
+  </style></head><body>${bodyContent}</body></html>`;
+}
+
+// ══════════════════════════════════════════════════════════════
+// HTML DE LA FACTURA (para PDF)
+// ══════════════════════════════════════════════════════════════
+function buildHTMLFactura(f) {
+  const filasAlb = f.albaranes.map(alb =>
+    `<tr>
+      <td style="padding:8px 7px;border-bottom:1px solid #eee;font-family:monospace;font-size:12px;">${alb.numero}</td>
+      <td style="padding:8px 7px;border-bottom:1px solid #eee;font-size:12px;">${formatFecha(alb.fecha)}</td>
+      <td style="padding:8px 7px;border-bottom:1px solid #eee;font-size:11px;color:#555;">${alb.lineas}</td>
+      <td style="padding:8px 7px;border-bottom:1px solid #eee;text-align:right;font-family:monospace;font-size:12px;">€ ${alb.base.toFixed(2)}</td>
+    </tr>`
+  ).join("");
+
+  return `<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8">
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:Arial,sans-serif;font-size:13px;color:#111;padding:1.5cm 2cm}
+    .fac-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:1.5rem}
+    .fac-empresa{font-size:20px;font-weight:700}
+    .fac-empresa-sub{font-size:11px;color:#666;margin-top:3px}
+    .fac-num-box{text-align:right;background:#1a1a18;color:#fff;border-radius:6px;padding:12px 16px}
+    .fac-num-label{font-size:9px;text-transform:uppercase;letter-spacing:1px;color:#aaa}
+    .fac-num{font-size:18px;font-weight:700;font-family:monospace;color:#fff}
+    .fac-periodo{font-size:11px;color:#ccc;margin-top:3px}
+    hr{border:none;border-top:2px solid #111;margin:0 0 1.2rem}
+    .partes{display:grid;grid-template-columns:1fr 1fr;gap:2rem;margin-bottom:1.5rem}
+    .parte-label{font-size:9px;text-transform:uppercase;letter-spacing:1px;color:#888;margin-bottom:5px}
+    .parte-name{font-size:14px;font-weight:600}
+    .parte-info{font-size:11px;color:#555;margin-top:2px}
+    table{width:100%;border-collapse:collapse;margin-bottom:1rem}
+    th{font-size:9px;text-transform:uppercase;letter-spacing:1px;color:#888;padding:5px 7px;border-bottom:1px solid #ccc;text-align:left}
+    th:last-child{text-align:right}
+    .totales{background:#f8f6f0;border-radius:6px;padding:14px 16px;margin-bottom:1rem}
+    .tot-fila{display:flex;justify-content:space-between;padding:4px 0;font-size:13px}
+    .tot-final{border-top:2px solid #111;margin-top:8px;padding-top:8px;font-size:17px;font-weight:700}
+    .pago-box{background:#f0f8f0;border-radius:6px;padding:12px 14px;font-size:12px;color:#333}
+    .footer{margin-top:1.5rem;padding-top:.8rem;border-top:1px solid #eee;display:flex;justify-content:space-between;font-size:10px;color:#aaa}
+  </style></head><body>
+    <div class="fac-header">
+      <div>
+        <div class="fac-empresa">${f.empresa.nombre}</div>
+        <div class="fac-empresa-sub">${f.empresa.direccion} · ${f.empresa.ciudad}</div>
+        <div class="fac-empresa-sub">CIF ${f.empresa.cif} · ${f.empresa.tel}</div>
+      </div>
+      <div class="fac-num-box">
+        <div class="fac-num-label">Factura</div>
+        <div class="fac-num">${f.numero}</div>
+        <div class="fac-periodo">Periodo: ${f.periodo}</div>
+        <div class="fac-periodo">Emitida: ${formatFecha(f.fecha)}</div>
+      </div>
+    </div>
+    <hr>
+    <div class="partes">
+      <div>
+        <div class="parte-label">Emisor</div>
+        <div class="parte-name">${f.empresa.nombre}</div>
+        <div class="parte-info">${f.empresa.cif}</div>
+        <div class="parte-info">${f.empresa.email}</div>
+      </div>
+      <div>
+        <div class="parte-label">Destinatario</div>
+        <div class="parte-name">${f.cliente.nombre}</div>
+        <div class="parte-info">${f.cliente.cif}</div>
+      </div>
+    </div>
+    <table>
+      <thead>
+        <tr>
+          <th>Albarán</th><th>Fecha</th><th>Detalle</th><th style="text-align:right">Base imponible</th>
+        </tr>
+      </thead>
+      <tbody>${filasAlb}</tbody>
+    </table>
+    <div class="totales">
+      <div class="tot-fila"><span>Base imponible</span><span style="font-family:monospace">€ ${f.baseTotal.toFixed(2)}</span></div>
+      <div class="tot-fila"><span>IVA ${f.ivaPorcentaje}%</span><span style="font-family:monospace">€ ${f.cuotaIva.toFixed(2)}</span></div>
+      <div class="tot-fila tot-final"><span>TOTAL</span><span style="font-family:monospace">€ ${f.total.toFixed(2)}</span></div>
+    </div>
+    <div class="pago-box">
+      <strong>Datos de pago:</strong> Transferencia bancaria<br>
+      IBAN: ${f.empresa.iban} · Concepto: ${f.numero}<br>
+      Vencimiento: 30 días desde la fecha de emisión
+    </div>
+    <div class="footer">
+      <span>${f.empresa.nombre} · ${f.empresa.cif}</span>
+      <span>Documento generado el ${formatFecha(f.fecha)}</span>
+    </div>
+  </body></html>`;
+}
+
+// ══════════════════════════════════════════════════════════════
+// SETUP INICIAL — ejecutar UNA VEZ manualmente
+// ══════════════════════════════════════════════════════════════
+function setupInicial() {
+  const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+
+  // Hoja Contador (fila1=ALB, fila2=FAC)
+  let hCont = ss.getSheetByName(HOJA_CONTADOR);
+  if (!hCont) {
+    hCont = ss.insertSheet(HOJA_CONTADOR);
+    hCont.getRange("A1:B2").setValues([[new Date().getFullYear(), 0],[new Date().getFullYear(), 0]]);
+    hCont.getRange("C1:C2").setValues([["← ALB contador"],["← FAC contador"]]);
+    Logger.log("✓ Hoja Contador creada");
+  }
+
+  // Hoja Clientes — ahora con columna E=Email, desde G: pares producto/precio
+  let hCli = ss.getSheetByName("Clientes");
+  if (!hCli) {
+    hCli = ss.insertSheet("Clientes");
+    hCli.appendRow(["ID","Nombre","CIF","Dirección","Ciudad","Email","Prod1-ID","Prod1-Precio","Prod2-ID","Prod2-Precio"]);
+    hCli.appendRow(["cli001","Restaurante La Plaza","B-98765432","C/ Mayor 12","Valencia","contacto@laplaza.com","p001",3.20,"p002",1.80]);
+    hCli.appendRow(["cli002","Catering El Jardín","B-11223344","Avda. del Puerto 45","Valencia","pedidos@eljardin.com","p001",2.90,"p002",1.60]);
+    hCli.getRange("1:1").setFontWeight("bold");
+    Logger.log("✓ Hoja Clientes creada");
+  }
+
+  // Hoja Productos
+  let hProd = ss.getSheetByName("Productos");
+  if (!hProd) {
+    hProd = ss.insertSheet("Productos");
+    hProd.appendRow(["ID","Nombre","Descripción","Unidad"]);
+    hProd.appendRow(["p001","Croquetas de jamón","Croquetas artesanas de jamón ibérico","ud"]);
+    hProd.appendRow(["p002","Ensaladilla rusa","Ensaladilla rusa tradicional","kg"]);
+    hProd.getRange("1:1").setFontWeight("bold");
+    Logger.log("✓ Hoja Productos creada");
+  }
+
+  Logger.log("✓ Setup completado. Ahora ejecuta instalarTriggerMensual() si quieres facturación automática.");
+}
+
+// ── Utilidad de fecha ──────────────────────────────────────────
+function formatFecha(fecha) {
+  const d = new Date(fecha);
+  return d.toLocaleDateString("es-ES", { day:"2-digit", month:"long", year:"numeric", timeZone:"Europe/Madrid" });
+}
