@@ -939,6 +939,7 @@ async function generarAlbaran(origen) {
   try {
     const resp = await fetch(CONFIG.APPS_SCRIPT_URL, {
       method: "POST",
+      mode: "no-cors",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         action: "saveAlbaran",
