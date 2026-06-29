@@ -686,7 +686,7 @@ function verPed(id){
 // ÓRDENES DE TRABAJO
 // ══════════════════════════════════════════════
 function vOrdenes(){
-  const pends=PEDIDOS.filter(p=>p.estado==="pendiente"||p.estado==="listo");
+  const pends=PEDIDOS.filter(p=>p.estado==="pendiente"||p.estado==="listo"||p.estado==="completado");
   if(!pends.length) return `<div class="card" style="text-align:center;padding:3rem;color:var(--ink-light);">
     <div style="font-size:48px;margin-bottom:1rem;">✅</div>
     <div style="font-size:16px;font-weight:500;">No hay órdenes pendientes</div>
@@ -707,6 +707,7 @@ function vOrdenes(){
     const acciones=perfil==="admin"?`<div class="ot-actions">
       ${p.estado==="pendiente"?`<button class="btn btn-sm btn-green" onclick="updEstado('${p.id}','listo')">✓ Listo para envio</button>`:""}
       ${p.estado==="listo"?`<button class="btn btn-sm btn-accent" onclick="updEstado('${p.id}','completado')">Completado</button>`:""}
+      ${p.estado==="completado"?`<button class="btn btn-sm btn-green" onclick="albDesde('${p.id}')">📄 Generar albarán</button>`:""}
     </div>`:"";
     return `<div class="ot-card">
       <div class="ot-head">
@@ -849,9 +850,53 @@ function vAlbaran(){
   </div>`:""}`;
 }
 
+function albDesde(pedidoId){
+  // Cargar datos del pedido en el formulario de albarán
+  const p=PEDIDOS.find(x=>x.id===pedidoId);
+  if(!p){ showToast("Pedido no encontrado","error"); return; }
+  
+  // Navegar a la vista albarán
+  mostrar("albaran");
+  
+  // Esperar a que se renderice y luego rellenar
+  setTimeout(()=>{
+    // Seleccionar cliente
+    const sel=document.getElementById("ac");
+    if(sel){ sel.value=p.clienteId; onAlbCli(); }
+    
+    // Fecha de hoy
+    const fEl=document.getElementById("af");
+    if(fEl) fEl.value=new Date().toISOString().split("T")[0];
+    
+    // Referencia al pedido en notas
+    const nEl=document.getElementById("an");
+    if(nEl) nEl.value="Ref. pedido "+p.numero+(p.observaciones?" · "+p.observaciones:"");
+    
+    // Limpiar líneas y añadir las del pedido
+    lAlb=[]; idAlb=0;
+    if(p.lineas&&p.lineas.length){
+      p.lineas.forEach(l=>{
+        lAlb.push({id:idAlb++, pId:l.productoId, cant:l.cantidad, precio:l.precio, fijo:true});
+      });
+    }
+    renderLAlb();
+    
+    // Guardar referencia al pedido origen
+    window.albPedidoOrigen=pedidoId;
+    
+    showToast("Albarán cargado desde pedido "+p.numero,"success");
+  }, 300);
+}
+
 function initAlb(){
   document.getElementById("af").value=new Date().toISOString().split("T")[0];
-  lAlb=[]; idAlb=0; cAlb=null; addLAlb();
+  lAlb=[]; idAlb=0; cAlb=null;
+  window.albPedidoOrigen=null;
+  // Reset cliente select
+  const sel=document.getElementById("ac"); if(sel) sel.value="";
+  const ci=document.getElementById("alb-ci"); if(ci) ci.style.display="none";
+  const an=document.getElementById("an"); if(an) an.value="";
+  addLAlb();
 }
 function onAlbCli(){
   const id=document.getElementById("ac").value;
@@ -926,6 +971,15 @@ async function guardarDrive(origen){
       if(origen==="modal") cerrarAlb();
       data.lineas.forEach(l=>{ if(l.productoId!=="portes") STOCK[l.productoId]=Math.max(0,(STOCK[l.productoId]||0)-l.cantidad); });
       REGISTRO.unshift({numero:data.numero,cliente:data.cliente.nombre,total:data.total,fecha:data.fecha});
+      // Si el albarán viene de un pedido, marcarlo como enviado
+      if(window.albPedidoOrigen){
+        try{
+          await jpost("updatePedido",{id:window.albPedidoOrigen,estado:"enviado"});
+          const idx=PEDIDOS.findIndex(p=>p.id===window.albPedidoOrigen);
+          if(idx>-1) PEDIDOS[idx].estado="enviado";
+        }catch(e){ console.log("Error actualizando pedido:",e); }
+        window.albPedidoOrigen=null;
+      }
       initAlb(); albData=null;
     }else showToast("Error: "+r.error,"error");
   }catch(e){showToast("Error de conexión","error");}
