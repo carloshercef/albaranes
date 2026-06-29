@@ -555,7 +555,7 @@
 // ═══════════════════════════════════════════════════════
 const CONFIG = {
   // URL de tu Google Apps Script (Web App) — ver INSTRUCCIONES.md
-  APPS_SCRIPT_URL: "https://script.google.com/macros/s/AKfycbzybPgDQzKMa0y54B4ILHMphRZveVhittDkXbRjhu9SNqMAPazVkig3EzTZurIh6VGAow/exec",
+  APPS_SCRIPT_URL: "https://script.google.com/macros/s/TU_SCRIPT_ID_AQUI/exec",
 
   // Datos de tu empresa (aparecen en el albarán)
   empresa: {
@@ -737,8 +737,12 @@ function renderLineas() {
     div.id = `linea-${linea.id}`;
 
     // Select producto
+    // Solo mostrar productos del cliente actual (o todos si no hay cliente)
     let optsHtml = '<option value="">— Elegir producto —</option>';
-    PRODUCTOS.forEach(p => {
+    const productosVisibles = clienteActual
+      ? PRODUCTOS.filter(p => p.id === 'portes' || (clienteActual.tarifas && clienteActual.tarifas[p.id] !== undefined))
+      : PRODUCTOS;
+    productosVisibles.forEach(p => {
       const sel = linea.productoId === p.id ? 'selected' : '';
       optsHtml += `<option value="${p.id}" ${sel}>${p.nombre} (${p.unidad})</option>`;
     });
