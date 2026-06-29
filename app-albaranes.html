@@ -403,6 +403,7 @@ async function cargarTodo(){
     if(dS.stock) STOCK=dS.stock;
     if(dR.registro) REGISTRO=dR.registro;
     try{ const dn=await jget(CFG.URL+"?action=getNextNum"); if(dn.num) nextNum=dn.num; }catch(e){}
+    try{ const dPH=await jget(CFG.URL+"?action=getProduccionHist"); if(dPH.produccion) window.PRODUCCION_HIST=dPH.produccion; }catch(e){}
   }catch(e){ console.log("Error cargando datos:",e.message); }
 }
 
@@ -447,8 +448,8 @@ function mostrar(id){
 // ══════════════════════════════════════════════
 function vDashboard(){
   const hoy=new Date();
-  const pedActivos=PEDIDOS.filter(p=>p.estado==="pendiente"||p.estado==="en_curso");
-  const pedEnCocina=PEDIDOS.filter(p=>p.estado==="en_curso");
+  const pedActivos=PEDIDOS.filter(p=>p.estado==="pendiente"||p.estado==="listo");
+  const pedPendientes=PEDIDOS.filter(p=>p.estado==="pendiente");
   const pedListos=PEDIDOS.filter(p=>p.estado==="listo");
   const albHoy=REGISTRO.filter(r=>{ try{ return new Date(r.fecha).toDateString()===hoy.toDateString(); }catch(e){ return false; } });
 
@@ -468,19 +469,19 @@ function vDashboard(){
 
   <div class="dash-kpis">
     <div class="kpi amber">
-      <div class="kpi-label">Pedidos activos</div>
-      <div class="kpi-val">${pedActivos.length}</div>
-      <div class="kpi-sub">pendientes + en curso</div>
-    </div>
-    <div class="kpi blue">
-      <div class="kpi-label">En cocina</div>
-      <div class="kpi-val">${pedEnCocina.length}</div>
-      <div class="kpi-sub">en producción</div>
+      <div class="kpi-label">Pendientes</div>
+      <div class="kpi-val">${pedPendientes.length}</div>
+      <div class="kpi-sub">en espera de producción</div>
     </div>
     <div class="kpi green">
       <div class="kpi-label">Listos para enviar</div>
       <div class="kpi-val">${pedListos.length}</div>
       <div class="kpi-sub">esperando albarán</div>
+    </div>
+    <div class="kpi blue">
+      <div class="kpi-label">Activos total</div>
+      <div class="kpi-val">${pedActivos.length}</div>
+      <div class="kpi-sub">pendientes + listos</div>
     </div>
     <div class="kpi accent">
       <div class="kpi-label">Albaranes hoy</div>
@@ -498,6 +499,21 @@ function vDashboard(){
       }).join("")}
     </div>
   </div>`:""}
+
+  <div class="card" style="margin-bottom:1rem;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.75rem;">
+      <div class="section-label" style="margin:0;border:none;padding:0;">Produccion mensual</div>
+      <div style="display:flex;gap:.5rem;align-items:center;">
+        <select id="dash-mes" onchange="updProdMes()" style="font-size:12px;padding:4px 8px;width:auto;">
+          ${["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"].map((m,i)=>`<option value="${i}" ${i===new Date().getMonth()?"selected":""}>${m}</option>`).join("")}
+        </select>
+        <select id="dash-año" onchange="updProdMes()" style="font-size:12px;padding:4px 8px;width:auto;">
+          <option value="2025">2025</option><option value="2026" selected>2026</option><option value="2027">2027</option>
+        </select>
+      </div>
+    </div>
+    <div id="dash-prod-res">${renderProdMes(new Date().getMonth(), new Date().getFullYear())}</div>
+  </div>
 
   <div class="dash-grid">
     <div class="card">
@@ -670,7 +686,7 @@ function verPed(id){
 // ÓRDENES DE TRABAJO
 // ══════════════════════════════════════════════
 function vOrdenes(){
-  const pends=PEDIDOS.filter(p=>p.estado!=="completado"&&p.estado!=="enviado");
+  const pends=PEDIDOS.filter(p=>p.estado==="pendiente"||p.estado==="listo");
   if(!pends.length) return `<div class="card" style="text-align:center;padding:3rem;color:var(--ink-light);">
     <div style="font-size:48px;margin-bottom:1rem;">✅</div>
     <div style="font-size:16px;font-weight:500;">No hay órdenes pendientes</div>
@@ -689,9 +705,8 @@ function vOrdenes(){
     }).join(""):"";
     const obs=p.observaciones?`<div class="ot-obs"><div class="ot-obs-lbl">Observaciones</div>${p.observaciones}</div>`:"";
     const acciones=perfil==="admin"?`<div class="ot-actions">
-      ${p.estado==="pendiente"?`<button class="btn btn-sm btn-outline" onclick="updEstado('${p.id}','en_curso')">▶ En cocina</button>`:""}
-      ${p.estado==="en_curso"?`<button class="btn btn-sm btn-green" onclick="updEstado('${p.id}','listo')">✓ Listo para envío</button>`:""}
-      ${p.estado==="listo"?`<button class="btn btn-sm btn-accent" onclick="updEstado('${p.id}','completado')">📦 Completado</button>`:""}
+      ${p.estado==="pendiente"?`<button class="btn btn-sm btn-green" onclick="updEstado('${p.id}','listo')">✓ Listo para envio</button>`:""}
+      ${p.estado==="listo"?`<button class="btn btn-sm btn-accent" onclick="updEstado('${p.id}','completado')">Completado</button>`:""}
     </div>`:"";
     return `<div class="ot-card">
       <div class="ot-head">
@@ -991,6 +1006,39 @@ async function _facturar(mes,año,spId){
 // ══════════════════════════════════════════════
 // UTILIDADES
 // ══════════════════════════════════════════════
+function renderProdMes(mes, año){
+  const meses=["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
+  if(!window.PRODUCCION_HIST||!window.PRODUCCION_HIST.length){
+    return '<div style="color:var(--ink-light);font-size:13px;text-align:center;padding:.5rem;">Sin datos de produccion. <button class="btn btn-sm btn-outline" style="margin-left:8px;" onclick="cargarProdHist()">Cargar</button></div>';
+  }
+  const filtr=window.PRODUCCION_HIST.filter(function(r){
+    try{ var d=new Date(r.fecha+"T12:00:00"); return d.getMonth()===mes&&d.getFullYear()===año; }catch(e){ return false; }
+  });
+  if(!filtr.length) return '<div style="color:var(--ink-light);font-size:13px;text-align:center;padding:.5rem;">Sin produccion en '+meses[mes]+' '+año+'</div>';
+  var agrup={};
+  filtr.forEach(function(r){ agrup[r.nombre]=(agrup[r.nombre]||0)+r.cantidad; });
+  return '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:.75rem;">'+
+    Object.entries(agrup).map(function(e){ return '<div style="background:var(--paper);border:1px solid var(--border);border-radius:6px;padding:.75rem;display:flex;justify-content:space-between;align-items:center;"><span style="font-size:13px;font-weight:500;">'+e[0]+'</span><span style="font-family:var(--mono);font-size:18px;font-weight:700;color:var(--green);">'+e[1]+'</span></div>'; }).join('')+
+  '</div>';
+}
+
+async function cargarProdHist(){
+  try{
+    var r=await jget(CFG.URL+"?action=getProduccionHist");
+    if(r.produccion) window.PRODUCCION_HIST=r.produccion;
+    var mes=parseInt(document.getElementById("dash-mes")&&document.getElementById("dash-mes").value||new Date().getMonth());
+    var año=parseInt(document.getElementById("dash-año")&&document.getElementById("dash-año").value||new Date().getFullYear());
+    var el=document.getElementById("dash-prod-res");
+    if(el) el.innerHTML=renderProdMes(mes,año);
+  }catch(e){ console.log("Error cargando produccion:",e); }
+}
+
+function updProdMes(){
+  var mes=parseInt(document.getElementById("dash-mes").value);
+  var año=parseInt(document.getElementById("dash-año").value);
+  document.getElementById("dash-prod-res").innerHTML=renderProdMes(mes,año);
+}
+
 function ffCorta(f){
   if(!f) return "—";
   try{ return new Date(f+"T12:00:00").toLocaleDateString("es-ES",{day:"2-digit",month:"2-digit",year:"numeric"}); }
