@@ -1139,12 +1139,10 @@ async function lanzarFacturacion() {
     const result = await jsonpRequest(url);
 
     if (result.facturas && result.facturas.length > 0) {
-      const resumen = result.facturas.map(f => `• ${f.cliente}: € ${f.total.toFixed(2)}`).join("
-");
-      showToast(`✓ ${result.facturas.length} facturas generadas para ${meses[mes]} ${año}`, "success");
-      alert(`Facturas generadas:
-${resumen}`);
-    } else {
+            const resumen = result.facturas.map(function(f){ return "- " + f.cliente + ": EUR " + f.total.toFixed(2); }).join("\n");
+      showToast("Facturas generadas: " + result.facturas.length, "success");
+      alert("Facturas de " + meses[mes] + " " + año + ":\n\n" + resumen);
+      } else {
       showToast(`No hay albaranes pendientes en ${meses[mes]} ${año}`, "");
     }
   } catch(e) {
