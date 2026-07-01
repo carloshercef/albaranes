@@ -6,25 +6,12 @@
 <title>Mamma Pazzo — Gestión</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
-:root {
-  --ink: #1a1a18;
-  --ink-mid: #4a4a44;
-  --ink-light: #9a9a90;
-  --paper: #f8f6f0;
-  --border: #d8d2c4;
-  --accent: #c8440a;
-  --accent-light: #f5e8e0;
-  --green: #2d6a4f;
-  --green-light: #d8eedf;
-  --blue: #1a4a7a;
-  --blue-light: #ddeeff;
-  --amber: #7a5000;
-  --amber-light: #fff3cc;
-  --red: #c0392b;
-  --red-light: #fde8e6;
-  --radius: 8px;
-  --font: 'DM Sans', sans-serif;
-  --mono: 'DM Mono', monospace;
+:root{
+  --ink:#1a1a18;--ink-mid:#4a4a44;--ink-light:#9a9a90;--paper:#f8f6f0;--border:#d8d2c4;
+  --accent:#c8440a;--accent-light:#f5e8e0;--green:#2d6a4f;--green-light:#d8eedf;
+  --blue:#1a4a7a;--blue-light:#ddeeff;--amber:#7a5000;--amber-light:#fff3cc;
+  --red:#c0392b;--red-light:#fde8e6;--purple:#5a1a7a;--purple-light:#f0e0ff;
+  --radius:8px;--font:'DM Sans',sans-serif;--mono:'DM Mono',monospace;
 }
 *{box-sizing:border-box;margin:0;padding:0;}
 body{font-family:var(--font);background:var(--paper);color:var(--ink);min-height:100vh;font-size:15px;}
@@ -35,7 +22,7 @@ body{font-family:var(--font);background:var(--paper);color:var(--ink);min-height
 .pin-logo{font-size:26px;font-weight:700;color:var(--ink);margin-bottom:4px;}
 .pin-logo span{color:var(--accent);}
 .pin-sub{font-size:12px;color:var(--ink-light);margin-bottom:1.5rem;}
-.pin-display{font-family:var(--mono);font-size:28px;letter-spacing:10px;background:var(--paper);border:2px solid var(--border);border-radius:8px;padding:12px;margin-bottom:1.25rem;min-height:56px;color:var(--ink);}
+.pin-display{font-family:var(--mono);font-size:28px;letter-spacing:10px;background:var(--paper);border:2px solid var(--border);border-radius:8px;padding:12px;margin-bottom:1.25rem;min-height:56px;}
 .pin-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:.75rem;}
 .pin-btn{font-family:var(--mono);font-size:18px;font-weight:500;background:#fff;border:1.5px solid var(--border);border-radius:8px;padding:14px;cursor:pointer;transition:all 0.1s;color:var(--ink);}
 .pin-btn:hover{background:var(--paper);border-color:var(--accent);}
@@ -61,7 +48,7 @@ nav::-webkit-scrollbar{display:none;}
 .nav-btn.active{color:var(--accent);border-bottom-color:var(--accent);}
 
 /* MAIN */
-.main{max-width:920px;margin:0 auto;padding:1.5rem 1rem 4rem;}
+.main{max-width:960px;margin:0 auto;padding:1.5rem 1rem 4rem;}
 
 /* CARDS */
 .card{background:#fff;border:1px solid var(--border);border-radius:var(--radius);padding:1.25rem 1.5rem;margin-bottom:1rem;}
@@ -88,8 +75,10 @@ textarea{resize:vertical;min-height:64px;}
 .btn-accent:hover{background:#a83508;}
 .btn-outline{background:#fff;color:var(--ink);border:1px solid var(--border);}
 .btn-outline:hover{border-color:var(--ink);}
+.btn-purple{background:var(--purple);color:#fff;}
+.btn-purple:hover{background:#4a0a6a;}
 .btn-sm{font-size:11px;padding:5px 10px;}
-.btn-danger{background:var(--red-light);color:var(--red);border:1px solid #f0b0aa;}
+.btn-warn{background:var(--amber-light);color:var(--amber);border:1px solid #e0c060;}
 .btn:disabled{opacity:0.4;cursor:not-allowed;}
 .btn-add{font-size:13px;font-weight:500;color:var(--accent);background:var(--accent-light);border:1px dashed #d4937a;border-radius:6px;padding:8px 14px;cursor:pointer;width:100%;margin-top:10px;transition:all 0.15s;}
 .btn-add:hover{background:#f0d8cc;border-style:solid;}
@@ -117,6 +106,7 @@ textarea{resize:vertical;min-height:64px;}
 .b-done{background:var(--green-light);color:var(--green);}
 .b-sent{background:#f0ece4;color:var(--ink-mid);}
 .b-low{background:var(--red-light);color:var(--red);}
+.b-comp{background:var(--purple-light);color:var(--purple);}
 
 /* TABLA */
 .tbl{width:100%;border-collapse:collapse;}
@@ -135,9 +125,7 @@ textarea{resize:vertical;min-height:64px;}
 .kpi.amber{border-left:3px solid #e0a030;}
 .kpi.blue{border-left:3px solid var(--blue);}
 .kpi.accent{border-left:3px solid var(--accent);}
-
 .dash-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;}
-
 .stock-mini-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:.75rem;margin-top:.5rem;}
 .stock-mini{background:var(--paper);border:1px solid var(--border);border-radius:6px;padding:.75rem;text-align:center;}
 .stock-mini .sn{font-size:11px;color:var(--ink-mid);margin-bottom:4px;font-weight:500;}
@@ -145,17 +133,12 @@ textarea{resize:vertical;min-height:64px;}
 .stock-mini .su{font-size:10px;color:var(--ink-light);margin-top:2px;}
 .stock-mini.low{border-color:var(--red);background:var(--red-light);}
 .stock-mini.low .sv{color:var(--red);}
-
 .entrega-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #f0ece4;font-size:13px;}
 .entrega-row:last-child{border-bottom:none;}
-.entrega-fecha{font-family:var(--mono);font-size:11px;color:var(--ink-light);min-width:70px;}
-.entrega-cliente{font-weight:500;}
-.entrega-det{font-size:11px;color:var(--ink-light);}
-
 .alb-row{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid #f0ece4;font-size:13px;}
 .alb-row:last-child{border-bottom:none;}
 
-/* STOCK CARDS */
+/* STOCK */
 .stock-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:1rem;}
 .stock-card{background:#fff;border:1px solid var(--border);border-radius:var(--radius);padding:1rem;text-align:center;}
 .stock-card .sn{font-size:12px;font-weight:500;color:var(--ink-mid);margin-bottom:8px;}
@@ -169,7 +152,7 @@ textarea{resize:vertical;min-height:64px;}
 .ot-head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:.75rem;}
 .ot-num{font-family:var(--mono);font-size:11px;color:var(--ink-light);}
 .ot-cliente{font-size:15px;font-weight:600;}
-.ot-fecha{font-size:11px;color:var(--ink-light);margin-top:2px;}
+.ot-fecha{font-size:11px;margin-top:2px;}
 .ot-linea{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid #f0ece4;font-size:13px;}
 .ot-linea:last-child{border-bottom:none;}
 .ot-linea .pn{font-weight:500;}
@@ -178,7 +161,7 @@ textarea{resize:vertical;min-height:64px;}
 .ok-stk{color:var(--green);font-size:11px;font-weight:600;}
 .nok-stk{color:var(--red);font-size:11px;font-weight:600;}
 .ot-obs{background:var(--amber-light);border-radius:6px;padding:9px 12px;margin-top:.75rem;font-size:12px;color:var(--amber);}
-.ot-obs-lbl{font-size:9px;text-transform:uppercase;letter-spacing:1px;font-family:var(--mono);margin-bottom:3px;}
+.ot-warn{background:var(--red-light);border:1px solid #f0a0a0;border-radius:6px;padding:10px 12px;margin-top:.75rem;font-size:12px;color:var(--red);font-weight:500;}
 .ot-actions{margin-top:.875rem;display:flex;gap:.5rem;flex-wrap:wrap;}
 
 /* PRODUCCION */
@@ -229,12 +212,16 @@ textarea{resize:vertical;min-height:64px;}
 .toast.show{transform:translateX(-50%) translateY(0);}
 .toast.success{background:var(--green);}
 .toast.error{background:var(--red);}
+.toast.warn{background:var(--amber);}
 
 /* SPINNER */
 .sp{width:14px;height:14px;border:2px solid rgba(255,255,255,0.3);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;display:none;}
 @keyframes spin{to{transform:rotate(360deg);}}
 
-/* RESPONSIVE */
+/* ALERT */
+.alert-warn{background:var(--red-light);border:1px solid #f0a0a0;border-radius:6px;padding:12px 16px;margin-bottom:1rem;font-size:13px;color:var(--red);}
+.alert-warn .aw-title{font-weight:700;margin-bottom:4px;}
+
 @media(max-width:640px){
   .dash-kpis{grid-template-columns:1fr 1fr;}
   .dash-grid{grid-template-columns:1fr;}
@@ -262,18 +249,10 @@ textarea{resize:vertical;min-height:64px;}
     <div class="pin-sub">Introduce tu PIN para acceder</div>
     <div class="pin-display" id="pin-disp">·&nbsp;&nbsp;·&nbsp;&nbsp;·&nbsp;&nbsp;·</div>
     <div class="pin-grid">
-      <button class="pin-btn" onclick="pp('1')">1</button>
-      <button class="pin-btn" onclick="pp('2')">2</button>
-      <button class="pin-btn" onclick="pp('3')">3</button>
-      <button class="pin-btn" onclick="pp('4')">4</button>
-      <button class="pin-btn" onclick="pp('5')">5</button>
-      <button class="pin-btn" onclick="pp('6')">6</button>
-      <button class="pin-btn" onclick="pp('7')">7</button>
-      <button class="pin-btn" onclick="pp('8')">8</button>
-      <button class="pin-btn" onclick="pp('9')">9</button>
-      <button class="pin-btn del" onclick="pd()">⌫</button>
-      <button class="pin-btn" onclick="pp('0')">0</button>
-      <button class="pin-btn ok" onclick="pok()">OK</button>
+      <button class="pin-btn" onclick="pp('1')">1</button><button class="pin-btn" onclick="pp('2')">2</button><button class="pin-btn" onclick="pp('3')">3</button>
+      <button class="pin-btn" onclick="pp('4')">4</button><button class="pin-btn" onclick="pp('5')">5</button><button class="pin-btn" onclick="pp('6')">6</button>
+      <button class="pin-btn" onclick="pp('7')">7</button><button class="pin-btn" onclick="pp('8')">8</button><button class="pin-btn" onclick="pp('9')">9</button>
+      <button class="pin-btn del" onclick="pd()">&#x232b;</button><button class="pin-btn" onclick="pp('0')">0</button><button class="pin-btn ok" onclick="pok()">OK</button>
     </div>
     <div class="pin-error" id="pin-err"></div>
   </div>
@@ -292,19 +271,40 @@ textarea{resize:vertical;min-height:64px;}
   <div class="main" id="main-content"></div>
 </div>
 
-<!-- MODAL ALBARÁN -->
+<!-- MODAL ALBARAN -->
 <div class="modal-overlay" id="modal-alb">
   <div class="modal">
-    <div class="modal-header">
-      <h2>Albarán</h2>
-      <button class="btn-close" onclick="cerrarAlb()">×</button>
-    </div>
+    <div class="modal-header"><h2>Albaran</h2><button class="btn-close" onclick="cerrarAlb()">x</button></div>
     <div class="modal-body" id="albaran-content"></div>
     <div class="modal-footer">
-      <button class="btn btn-outline" onclick="window.print()">🖨 Imprimir</button>
-      <button class="btn btn-green" onclick="guardarDrive('modal')" id="btn-drive-modal">
-        ↑ Guardar en Drive <div class="sp" id="sp-modal"></div>
-      </button>
+      <button class="btn btn-outline" onclick="window.print()">Imprimir</button>
+      <button class="btn btn-green" onclick="guardarDrive('modal')" id="btn-drive-modal">Guardar en Drive <div class="sp" id="sp-modal"></div></button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL FACTURA MANUAL -->
+<div class="modal-overlay" id="modal-fac-manual">
+  <div class="modal">
+    <div class="modal-header"><h2>Nueva factura manual</h2><button class="btn-close" onclick="cerrarFacManual()">x</button></div>
+    <div class="modal-body">
+      <div class="g2">
+        <div class="field"><label>Cliente</label>
+          <select id="fm-cliente"><option value="">-- Elegir cliente --</option></select>
+        </div>
+        <div class="field"><label>Fecha factura</label><input type="date" id="fm-fecha"></div>
+      </div>
+      <div class="field"><label>Concepto</label><input type="text" id="fm-concepto" placeholder="Descripcion del servicio o producto"></div>
+      <div class="g3">
+        <div class="field"><label>Base imponible (EUR)</label><input type="number" id="fm-base" step="0.01" min="0" placeholder="0.00" oninput="calcFacManual()"></div>
+        <div class="field"><label>IVA (%)</label><input type="number" id="fm-iva" value="10" step="1" min="0" oninput="calcFacManual()"></div>
+        <div class="field"><label>Total</label><input type="text" id="fm-total" readonly style="background:var(--green-light);font-weight:600;"></div>
+      </div>
+      <div class="field"><label>Notas</label><textarea id="fm-notas" placeholder="Observaciones..."></textarea></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="cerrarFacManual()">Cancelar</button>
+      <button class="btn btn-purple" onclick="guardarFacManual()">Generar factura <div class="sp" id="sp-fac-man"></div></button>
     </div>
   </div>
 </div>
@@ -312,13 +312,10 @@ textarea{resize:vertical;min-height:64px;}
 <div class="toast" id="toast"></div>
 
 <script>
-// ══════════════════════════════════════════════
 // CONFIG
-// ══════════════════════════════════════════════
 const CFG = {
   URL: "https://script.google.com/macros/s/AKfycbzybPgDQzKMa0y54B4ILHMphRZveVhittDkXbRjhu9SNqMAPazVkig3EzTZurIh6VGAow/exec",
-  PIN_C: "6789",
-  PIN_A: "0502",
+  PIN_C: "6789", PIN_A: "0502", PIN_CON: "1234",
   emp: {
     nombre:"Terraza La Reina S.L.", direccion:"C/ Conde Salvatierra 37",
     ciudad:"46004 Valencia", cif:"B13732102", tel:"691 777 997",
@@ -326,25 +323,19 @@ const CFG = {
   }
 };
 
-// ══════════════════════════════════════════════
-// ESTADO GLOBAL
-// ══════════════════════════════════════════════
+// ESTADO
 let CLIENTES=[], PRODUCTOS=[], PEDIDOS=[], STOCK={}, REGISTRO=[];
-let perfil=null, nextNum=null;
-let pinVal="";
+window.PRODUCCION_HIST=[];
+let perfil=null, nextNum=null, pinVal="";
 
-// ══════════════════════════════════════════════
 // PIN
-// ══════════════════════════════════════════════
 function pp(d){ if(pinVal.length>=4)return; pinVal+=d; updPin(); }
 function pd(){ pinVal=pinVal.slice(0,-1); updPin(); document.getElementById("pin-err").textContent=""; }
-function updPin(){
-  const d=["·","·","·","·"].map((x,i)=>pinVal[i]?"●":"·").join("&nbsp;&nbsp;");
-  document.getElementById("pin-disp").innerHTML=d;
-}
+function updPin(){ document.getElementById("pin-disp").innerHTML=["·","·","·","·"].map((x,i)=>pinVal[i]?"●":"·").join("&nbsp;&nbsp;"); }
 function pok(){
   if(pinVal===CFG.PIN_C) entrar("cocina");
   else if(pinVal===CFG.PIN_A) entrar("admin");
+  else if(pinVal===CFG.PIN_CON) entrar("contabilidad");
   else{ document.getElementById("pin-err").textContent="PIN incorrecto"; pinVal=""; updPin(); }
 }
 
@@ -352,10 +343,12 @@ async function entrar(p){
   perfil=p;
   document.getElementById("screen-pin").style.display="none";
   document.getElementById("screen-app").style.display="block";
-  document.getElementById("h-perfil").textContent= p==="admin"?"👔 Administración":"👨‍🍳 Cocina";
+  const labels={admin:"Administracion",cocina:"Cocina",contabilidad:"Contabilidad"};
+  document.getElementById("h-perfil").textContent=labels[p]||p;
   await cargarTodo();
   renderNav();
-  mostrar(p==="admin"?"dashboard":"ordenes");
+  const inicio={admin:"dashboard",cocina:"ordenes",contabilidad:"facturas"};
+  mostrar(inicio[p]||"dashboard");
 }
 
 function salir(){
@@ -365,9 +358,7 @@ function salir(){
   document.getElementById("screen-pin").style.display="flex";
 }
 
-// ══════════════════════════════════════════════
 // JSONP
-// ══════════════════════════════════════════════
 function jget(url){
   return new Promise((res,rej)=>{
     const cb="cb_"+Date.now()+"_"+~~(Math.random()*9999);
@@ -379,15 +370,12 @@ function jget(url){
     document.body.appendChild(s);
   });
 }
-
-async function jpost(action, data){
+async function jpost(action,data){
   const payload=btoa(unescape(encodeURIComponent(JSON.stringify({action,...data}))));
   return jget(CFG.URL+"?action="+action+"B64&data="+encodeURIComponent(payload));
 }
 
-// ══════════════════════════════════════════════
 // CARGAR DATOS
-// ══════════════════════════════════════════════
 async function cargarTodo(){
   try{
     const [dC,dP,dPed,dS,dR]=await Promise.all([
@@ -404,43 +392,31 @@ async function cargarTodo(){
     if(dR.registro) REGISTRO=dR.registro;
     try{ const dn=await jget(CFG.URL+"?action=getNextNum"); if(dn.num) nextNum=dn.num; }catch(e){}
     try{ const dPH=await jget(CFG.URL+"?action=getProduccionHist"); if(dPH.produccion) window.PRODUCCION_HIST=dPH.produccion; }catch(e){}
-  }catch(e){ console.log("Error cargando datos:",e.message); }
+  }catch(e){ console.log("Error cargando:",e.message); }
 }
 
-// ══════════════════════════════════════════════
 // NAV
-// ══════════════════════════════════════════════
-const NAV_A=[
-  {id:"dashboard",lbl:"🏠 Dashboard"},
-  {id:"pedidos",lbl:"🛒 Pedidos"},
-  {id:"ordenes",lbl:"📋 Órdenes"},
-  {id:"produccion",lbl:"🍕 Producción"},
-  {id:"stock",lbl:"📦 Stock"},
-  {id:"albaran",lbl:"📄 Albarán"},
-  {id:"facturas",lbl:"🧾 Facturas"}
-];
-const NAV_C=[
-  {id:"ordenes",lbl:"📋 Mis órdenes"},
-  {id:"produccion",lbl:"🍕 Producción"},
-  {id:"stock",lbl:"📦 Stock"},
-  {id:"albaran",lbl:"📄 Albarán"}
-];
+const NAV={
+  admin:[{id:"dashboard",lbl:"Dashboard"},{id:"pedidos",lbl:"Pedidos"},{id:"ordenes",lbl:"Ordenes"},{id:"produccion",lbl:"Produccion"},{id:"stock",lbl:"Stock"},{id:"albaran",lbl:"Albaran"},{id:"facturas",lbl:"Facturas"},{id:"maestros",lbl:"Maestros"}],
+  cocina:[{id:"ordenes",lbl:"Mis ordenes"},{id:"produccion",lbl:"Produccion"},{id:"stock",lbl:"Stock"},{id:"albaran",lbl:"Albaran"}],
+  contabilidad:[{id:"facturas",lbl:"Facturas"}]
+};
 
 let vistaActual=null;
 function renderNav(){
   const nav=document.getElementById("main-nav");
-  const vistas=perfil==="admin"?NAV_A:NAV_C;
-  nav.innerHTML=vistas.map(v=>`<button class="nav-btn" id="nav-${v.id}" onclick="mostrar('${v.id}')">${v.lbl}</button>`).join("");
+  nav.innerHTML=(NAV[perfil]||[]).map(v=>`<button class="nav-btn" id="nav-${v.id}" onclick="mostrar('${v.id}')">${v.lbl}</button>`).join("");
 }
 function mostrar(id){
   vistaActual=id;
   document.querySelectorAll(".nav-btn").forEach(b=>b.classList.remove("active"));
   const b=document.getElementById("nav-"+id); if(b) b.classList.add("active");
   const c=document.getElementById("main-content");
-  const map={dashboard:vDashboard,pedidos:vPedidos,ordenes:vOrdenes,produccion:vProduccion,stock:vStock,albaran:vAlbaran,facturas:vFacturas};
+  const map={dashboard:vDashboard,pedidos:vPedidos,ordenes:vOrdenes,produccion:vProduccion,stock:vStock,albaran:vAlbaran,facturas:vFacturas,maestros:vMaestros};
   if(map[id]) c.innerHTML=map[id]();
-  if(id==="albaran") initAlb();
-  if(id==="pedidos") initPed();
+  if(id==="albaran"){ initAlb(); }
+  if(id==="pedidos"){ initPed(); }
+  if(id==="facturas"){ initFacClientes(); }
 }
 
 // ══════════════════════════════════════════════
@@ -448,15 +424,15 @@ function mostrar(id){
 // ══════════════════════════════════════════════
 function vDashboard(){
   const hoy=new Date();
-  const pedActivos=PEDIDOS.filter(p=>p.estado==="pendiente"||p.estado==="listo");
-  const pedPendientes=PEDIDOS.filter(p=>p.estado==="pendiente");
-  const pedListos=PEDIDOS.filter(p=>p.estado==="listo");
+  // Pedidos ordenados por fecha de entrega (mas urgente primero)
+  const pedOrden=[...PEDIDOS].filter(p=>p.estado!=="enviado"&&p.estado!=="completado_enviado").sort((a,b)=>new Date(a.fechaEntrega||"9999")-new Date(b.fechaEntrega||"9999"));
+  const pedPend=pedOrden.filter(p=>p.estado==="pendiente");
+  const pedListos=pedOrden.filter(p=>p.estado==="listo");
+  const pedActivos=pedPend.length+pedListos.length;
   const albHoy=REGISTRO.filter(r=>{ try{ return new Date(r.fecha).toDateString()===hoy.toDateString(); }catch(e){ return false; } });
-
-  // Próximas entregas (ordenadas por fecha)
-  const proximas=[...PEDIDOS].filter(p=>p.estado!=="completado"&&p.fechaEntrega).sort((a,b)=>new Date(a.fechaEntrega)-new Date(b.fechaEntrega)).slice(0,5);
-
+  const proximas=pedOrden.slice(0,6);
   const stockBajo=Object.entries(STOCK).filter(([k,v])=>v<10&&k!=="portes");
+  const mes=hoy.getMonth(); const año=hoy.getFullYear();
 
   return `
   <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
@@ -464,116 +440,80 @@ function vDashboard(){
       <div style="font-size:20px;font-weight:700;">Panel de control</div>
       <div style="font-size:12px;color:var(--ink-light);margin-top:2px;">${hoy.toLocaleDateString("es-ES",{weekday:"long",day:"numeric",month:"long",year:"numeric"})}</div>
     </div>
-    <button class="btn btn-outline btn-sm" onclick="recargar()">🔄 Actualizar</button>
+    <button class="btn btn-outline btn-sm" onclick="recargar()">Actualizar</button>
   </div>
 
   <div class="dash-kpis">
-    <div class="kpi amber">
-      <div class="kpi-label">Pendientes</div>
-      <div class="kpi-val">${pedPendientes.length}</div>
-      <div class="kpi-sub">en espera de producción</div>
-    </div>
-    <div class="kpi green">
-      <div class="kpi-label">Listos para enviar</div>
-      <div class="kpi-val">${pedListos.length}</div>
-      <div class="kpi-sub">esperando albarán</div>
-    </div>
-    <div class="kpi blue">
-      <div class="kpi-label">Activos total</div>
-      <div class="kpi-val">${pedActivos.length}</div>
-      <div class="kpi-sub">pendientes + listos</div>
-    </div>
-    <div class="kpi accent">
-      <div class="kpi-label">Albaranes hoy</div>
-      <div class="kpi-val">${albHoy.length}</div>
-      <div class="kpi-sub">emitidos hoy</div>
-    </div>
+    <div class="kpi amber"><div class="kpi-label">Pendientes</div><div class="kpi-val">${pedPend.length}</div><div class="kpi-sub">esperando produccion</div></div>
+    <div class="kpi green"><div class="kpi-label">Listos para enviar</div><div class="kpi-val">${pedListos.length}</div><div class="kpi-sub">esperando albaran</div></div>
+    <div class="kpi blue"><div class="kpi-label">Activos total</div><div class="kpi-val">${pedActivos}</div><div class="kpi-sub">pendientes + listos</div></div>
+    <div class="kpi accent"><div class="kpi-label">Albaranes hoy</div><div class="kpi-val">${albHoy.length}</div><div class="kpi-sub">emitidos hoy</div></div>
   </div>
 
-  ${stockBajo.length>0?`<div class="card" style="border-left:3px solid var(--red);margin-bottom:1rem;">
-    <div class="section-label" style="color:var(--red);">⚠ Stock bajo</div>
-    <div style="display:flex;gap:.75rem;flex-wrap:wrap;">
-      ${stockBajo.map(([k,v])=>{
-        const p=PRODUCTOS.find(x=>x.id===k);
-        return `<span class="badge b-low">${p?p.nombre:k}: ${v}</span>`;
-      }).join("")}
-    </div>
-  </div>`:""}
+  ${stockBajo.length>0?`<div class="alert-warn"><div class="aw-title">Stock bajo en:</div>${stockBajo.map(([k,v])=>{ const p=PRODUCTOS.find(x=>x.id===k); return `${p?p.nombre:k}: ${v} ud`; }).join(" · ")}</div>`:""}
 
   <div class="card" style="margin-bottom:1rem;">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.75rem;">
       <div class="section-label" style="margin:0;border:none;padding:0;">Produccion mensual</div>
-      <div style="display:flex;gap:.5rem;align-items:center;">
+      <div style="display:flex;gap:.5rem;">
         <select id="dash-mes" onchange="updProdMes()" style="font-size:12px;padding:4px 8px;width:auto;">
-          ${["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"].map((m,i)=>`<option value="${i}" ${i===new Date().getMonth()?"selected":""}>${m}</option>`).join("")}
+          ${["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"].map((m,i)=>`<option value="${i}" ${i===mes?"selected":""}>${m}</option>`).join("")}
         </select>
         <select id="dash-año" onchange="updProdMes()" style="font-size:12px;padding:4px 8px;width:auto;">
           <option value="2025">2025</option><option value="2026" selected>2026</option><option value="2027">2027</option>
         </select>
       </div>
     </div>
-    <div id="dash-prod-res">${renderProdMes(new Date().getMonth(), new Date().getFullYear())}</div>
+    <div id="dash-prod-res">${renderProdMes(mes,año)}</div>
   </div>
 
   <div class="dash-grid">
     <div class="card">
       <div class="section-label">Stock actual</div>
       <div class="stock-mini-grid">
-        ${PRODUCTOS.filter(p=>p.id!=="portes").map(p=>{
-          const q=STOCK[p.id]||0;
-          return `<div class="stock-mini ${q<10?"low":""}">
-            <div class="sn">${p.nombre}</div>
-            <div class="sv">${q}</div>
-            <div class="su">${p.unidad}</div>
-          </div>`;
-        }).join("")}
+        ${PRODUCTOS.filter(p=>p.id!=="portes").map(p=>{ const q=STOCK[p.id]||0; return `<div class="stock-mini ${q<10?"low":""}"><div class="sn">${p.nombre}</div><div class="sv">${q}</div><div class="su">${p.unidad}</div></div>`; }).join("")}
       </div>
     </div>
-
     <div>
       <div class="card">
-        <div class="section-label">Próximas entregas</div>
-        ${proximas.length===0?'<div style="color:var(--ink-light);font-size:13px;text-align:center;padding:1rem;">No hay entregas pendientes</div>':
+        <div class="section-label">Proximas entregas (por urgencia)</div>
+        ${proximas.length===0?'<div style="color:var(--ink-light);font-size:13px;text-align:center;padding:1rem;">Sin entregas pendientes</div>':
         proximas.map(p=>{
-          const esHoy=new Date(p.fechaEntrega+"T12:00:00").toDateString()===hoy.toDateString();
-          const esMañana=new Date(p.fechaEntrega+"T12:00:00").toDateString()===new Date(hoy.getTime()+86400000).toDateString();
-          const label=esHoy?"HOY":esMañana?"MAÑANA":ffCorta(p.fechaEntrega);
+          const esHoy=p.fechaEntrega&&new Date(p.fechaEntrega+"T12:00:00").toDateString()===hoy.toDateString();
+          const esMañana=p.fechaEntrega&&new Date(p.fechaEntrega+"T12:00:00").toDateString()===new Date(hoy.getTime()+86400000).toDateString();
+          const label=esHoy?"HOY":esMañana?"MANANA":ffCorta(p.fechaEntrega);
           const prods=p.lineas?p.lineas.map(l=>l.nombre+" x"+l.cantidad).join(", "):"";
           return `<div class="entrega-row">
-            <span class="entrega-fecha ${esHoy?"" :""}" style="${esHoy?"color:var(--accent);font-weight:700;":""}">${label}</span>
-            <div style="flex:1;padding:0 10px;">
-              <div class="entrega-cliente">${p.clienteNombre}</div>
-              <div class="entrega-det">${prods}</div>
-            </div>
-            <span class="badge b-${p.estado==="pendiente"?"pend":p.estado==="en_curso"?"prog":"done"}">${p.estado}</span>
+            <span style="font-family:var(--mono);font-size:11px;min-width:70px;${esHoy?"color:var(--red);font-weight:700;":""}">${label}</span>
+            <div style="flex:1;padding:0 10px;"><div style="font-weight:500;">${p.clienteNombre}</div><div style="font-size:11px;color:var(--ink-light);">${prods}</div></div>
+            <span class="badge b-${p.estado==="pendiente"?"pend":"done"}">${p.estado}</span>
           </div>`;
         }).join("")}
       </div>
-
       <div class="card">
-        <div class="section-label">Últimos albaranes</div>
-        ${REGISTRO.slice(0,5).map(r=>`
-          <div class="alb-row">
-            <div>
-              <div style="font-family:var(--mono);font-size:11px;color:var(--ink-light);">${r.numero}</div>
-              <div style="font-weight:500;font-size:13px;">${r.cliente}</div>
-            </div>
-            <div style="text-align:right;">
-              <div style="font-family:var(--mono);font-size:13px;">€ ${parseFloat(r.total||0).toFixed(2)}</div>
-              <div style="font-size:11px;color:var(--ink-light);">${ffCorta(r.fecha)}</div>
-            </div>
-          </div>`).join("")||'<div style="color:var(--ink-light);font-size:13px;text-align:center;padding:1rem;">Sin albaranes aún</div>'}
+        <div class="section-label">Ultimos albaranes</div>
+        ${REGISTRO.slice(0,5).map(r=>`<div class="alb-row">
+          <div><div style="font-family:var(--mono);font-size:11px;color:var(--ink-light);">${r.numero}</div><div style="font-weight:500;font-size:13px;">${r.cliente}</div></div>
+          <div style="text-align:right;"><div style="font-family:var(--mono);font-size:13px;">EUR ${parseFloat(r.total||0).toFixed(2)}</div><div style="font-size:11px;color:var(--ink-light);">${ffCorta(r.fecha)}</div></div>
+        </div>`).join("")||'<div style="color:var(--ink-light);font-size:13px;text-align:center;padding:1rem;">Sin albaranes</div>'}
       </div>
     </div>
   </div>`;
 }
 
-async function recargar(){
-  showToast("Actualizando...");
-  await cargarTodo();
-  mostrar(vistaActual);
-  showToast("✓ Datos actualizados","success");
+async function recargar(){ showToast("Actualizando..."); await cargarTodo(); mostrar(vistaActual); showToast("Datos actualizados","success"); }
+
+function renderProdMes(mes,año){
+  const meses=["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
+  if(!window.PRODUCCION_HIST||!window.PRODUCCION_HIST.length) return '<div style="color:var(--ink-light);font-size:13px;text-align:center;padding:.5rem;">Sin datos. <button class="btn btn-sm btn-outline" style="margin-left:8px;" onclick="cargarProdHist()">Cargar</button></div>';
+  const filtr=window.PRODUCCION_HIST.filter(function(r){ try{ var d=new Date(r.fecha+"T12:00:00"); return d.getMonth()===mes&&d.getFullYear()===año; }catch(e){ return false; } });
+  if(!filtr.length) return '<div style="color:var(--ink-light);font-size:13px;text-align:center;padding:.5rem;">Sin produccion en '+meses[mes]+' '+año+'</div>';
+  var agrup={};
+  filtr.forEach(function(r){ agrup[r.nombre]=(agrup[r.nombre]||0)+r.cantidad; });
+  return '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:.75rem;">'+Object.entries(agrup).map(function(e){ return '<div style="background:var(--paper);border:1px solid var(--border);border-radius:6px;padding:.75rem;display:flex;justify-content:space-between;align-items:center;"><span style="font-size:13px;font-weight:500;">'+e[0]+'</span><span style="font-family:var(--mono);font-size:18px;font-weight:700;color:var(--green);">'+e[1]+'</span></div>'; }).join('')+'</div>';
 }
+async function cargarProdHist(){ try{ var r=await jget(CFG.URL+"?action=getProduccionHist"); if(r.produccion) window.PRODUCCION_HIST=r.produccion; var mes=parseInt(document.getElementById("dash-mes")&&document.getElementById("dash-mes").value||new Date().getMonth()); var año=parseInt(document.getElementById("dash-año")&&document.getElementById("dash-año").value||new Date().getFullYear()); var el=document.getElementById("dash-prod-res"); if(el) el.innerHTML=renderProdMes(mes,año); }catch(e){} }
+function updProdMes(){ var mes=parseInt(document.getElementById("dash-mes").value); var año=parseInt(document.getElementById("dash-año").value); document.getElementById("dash-prod-res").innerHTML=renderProdMes(mes,año); }
 
 // ══════════════════════════════════════════════
 // PEDIDOS
@@ -581,13 +521,14 @@ async function recargar(){
 let lPed=[], cPed=null, idPed=0;
 
 function vPedidos(){
+  // Ordenados por fecha de entrega (mas urgente primero)
+  const pedOrden=[...PEDIDOS].sort((a,b)=>new Date(a.fechaEntrega||"9999")-new Date(b.fechaEntrega||"9999"));
   return `
   <div class="card">
     <div class="section-label">Nuevo pedido</div>
     <div class="g2">
       <div class="field"><label>Cliente</label>
-        <select id="pc" onchange="onPedCli()">
-          <option value="">— Elegir cliente —</option>
+        <select id="pc" onchange="onPedCli()"><option value="">-- Elegir cliente --</option>
           ${CLIENTES.map(c=>`<option value="${c.id}">${c.nombre}</option>`).join("")}
         </select>
       </div>
@@ -597,72 +538,61 @@ function vPedidos(){
     <div style="margin-top:.75rem;">
       <div class="lh"><span>Producto</span><span>Cantidad</span><span>Precio</span><span style="text-align:right">Subtotal</span><span></span></div>
       <div id="pl"></div>
-      <button class="btn-add" onclick="addLPed()">+ Añadir producto</button>
+      <button class="btn-add" onclick="addLPed()">+ Anadir producto</button>
     </div>
     <div style="margin-top:1.25rem;display:flex;justify-content:flex-end;">
-      <button class="btn btn-green" onclick="guardarPed()">✓ Guardar pedido <div class="sp" id="sp-ped"></div></button>
+      <button class="btn btn-green" onclick="guardarPed()">Guardar pedido <div class="sp" id="sp-ped"></div></button>
     </div>
   </div>
   <div class="card">
-    <div class="section-label">Pedidos activos</div>
+    <div class="section-label">Pedidos (ordenados por urgencia)</div>
     <table class="tbl">
-      <thead><tr><th>Nº</th><th>Cliente</th><th>Entrega</th><th>Estado</th><th>Total</th><th></th></tr></thead>
+      <thead><tr><th>N</th><th>Cliente</th><th>Entrega</th><th>Estado</th><th>Total</th><th></th></tr></thead>
       <tbody>
-        ${PEDIDOS.length===0?'<tr><td colspan="6" style="text-align:center;color:#aaa;padding:2rem;">Sin pedidos</td></tr>':
-        PEDIDOS.map(p=>`<tr>
-          <td style="font-family:var(--mono);font-size:11px;">${p.numero}</td>
-          <td><strong>${p.clienteNombre}</strong></td>
-          <td>${ffCorta(p.fechaEntrega)}</td>
-          <td><span class="badge b-${p.estado==="pendiente"?"pend":p.estado==="en_curso"?"prog":p.estado==="listo"?"done":"sent"}">${p.estado}</span></td>
-          <td style="font-family:var(--mono);">€ ${parseFloat(p.total||0).toFixed(2)}</td>
-          <td><button class="btn btn-sm btn-outline" onclick="verPed('${p.id}')">Ver</button></td>
-        </tr>`).join("")}
+        ${pedOrden.length===0?'<tr><td colspan="6" style="text-align:center;color:#aaa;padding:2rem;">Sin pedidos</td></tr>':
+        pedOrden.map(p=>{
+          const esHoy=p.fechaEntrega&&new Date(p.fechaEntrega+"T12:00:00").toDateString()===new Date().toDateString();
+          const esPasado=p.fechaEntrega&&new Date(p.fechaEntrega+"T12:00:00")<new Date()&&!esHoy;
+          return `<tr style="${esPasado&&p.estado!=="enviado"?"background:#fff8f8;":""}">
+            <td style="font-family:var(--mono);font-size:11px;">${p.numero}</td>
+            <td><strong>${p.clienteNombre}</strong></td>
+            <td style="${esHoy?"color:var(--red);font-weight:700;":esPasado?"color:var(--red);":""}">${ffCorta(p.fechaEntrega)}</td>
+            <td><span class="badge b-${p.estado==="pendiente"?"pend":p.estado==="listo"?"done":p.estado==="completado"?"comp":"sent"}">${p.estado}</span></td>
+            <td style="font-family:var(--mono);">EUR ${parseFloat(p.total||0).toFixed(2)}</td>
+            <td><button class="btn btn-sm btn-outline" onclick="verPed('${p.id}')">Ver</button></td>
+          </tr>`;
+        }).join("")}
       </tbody>
     </table>
   </div>`;
 }
 
-function initPed(){
-  document.getElementById("pf").value=new Date().toISOString().split("T")[0];
-  lPed=[]; idPed=0; cPed=null; addLPed();
-}
-function onPedCli(){
-  const id=document.getElementById("pc").value;
-  cPed=CLIENTES.find(c=>c.id===id)||null;
-  lPed.forEach((_,i)=>updPrecPed(i)); renderLPed();
-}
+function initPed(){ document.getElementById("pf").value=new Date().toISOString().split("T")[0]; lPed=[]; idPed=0; cPed=null; addLPed(); }
+function onPedCli(){ const id=document.getElementById("pc").value; cPed=CLIENTES.find(c=>c.id===id)||null; lPed.forEach((_,i)=>updPrecPed(i)); renderLPed(); }
 function addLPed(){ lPed.push({id:idPed++,pId:"",cant:1,precio:0,fijo:false}); renderLPed(); }
 function remLPed(id){ lPed=lPed.filter(l=>l.id!==id); renderLPed(); }
 function renderLPed(){
   const c=document.getElementById("pl"); if(!c) return;
   c.innerHTML=lPed.map(l=>{
     const prods=cPed?PRODUCTOS.filter(p=>p.id==="portes"||(cPed.tarifas&&cPed.tarifas[p.id]!==undefined)):PRODUCTOS;
-    const opts='<option value="">— Producto —</option>'+prods.map(p=>`<option value="${p.id}" ${l.pId===p.id?"selected":""}>${p.nombre}</option>`).join("");
-    const pH=l.fijo?`<div class="pf">€ ${l.precio.toFixed(2)}</div>`:`<input type="number" min="0" step="0.01" class="pf pm" value="${l.precio||""}" onchange="onPPedM(${l.id},this.value)" placeholder="Precio">`;
-    const st=l.pId&&l.cant>0&&l.precio>0?"€ "+(l.cant*l.precio).toFixed(2):"—";
-    return `<div class="lr">
-      <select onchange="onProdPed(${l.id},this.value)">${opts}</select>
-      <input type="number" min="0" step="1" value="${l.cant}" onchange="onCantPed(${l.id},this.value)">
-      ${pH}<div class="sc">${st}</div>
-      <button class="brm" onclick="remLPed(${l.id})">×</button>
-    </div>`;
+    const opts='<option value="">-- Producto --</option>'+prods.map(p=>`<option value="${p.id}" ${l.pId===p.id?"selected":""}>${p.nombre}</option>`).join("");
+    const pH=l.fijo?`<div class="pf">EUR ${l.precio.toFixed(2)}</div>`:`<input type="number" min="0" step="0.01" class="pf pm" value="${l.precio||""}" onchange="onPPedM(${l.id},this.value)" placeholder="Precio">`;
+    const st=l.pId&&l.cant>0&&l.precio>0?"EUR "+(l.cant*l.precio).toFixed(2):"--";
+    return `<div class="lr"><select onchange="onProdPed(${l.id},this.value)">${opts}</select><input type="number" min="0" step="1" value="${l.cant}" onchange="onCantPed(${l.id},this.value)">${pH}<div class="sc">${st}</div><button class="brm" onclick="remLPed(${l.id})">x</button></div>`;
   }).join("");
 }
 function onProdPed(id,v){ const i=lPed.findIndex(l=>l.id===id); lPed[i].pId=v; updPrecPed(i); renderLPed(); }
 function onCantPed(id,v){ const i=lPed.findIndex(l=>l.id===id); lPed[i].cant=parseFloat(v)||0; renderLPed(); }
 function onPPedM(id,v){ const i=lPed.findIndex(l=>l.id===id); lPed[i].precio=parseFloat(v)||0; renderLPed(); }
-function updPrecPed(i){
-  const l=lPed[i]; let pr=0,fj=false;
-  if(l.pId&&cPed){ const t=cPed.tarifas[l.pId]; if(t&&t>0){pr=t;fj=true;} }
-  lPed[i].precio=pr; lPed[i].fijo=fj;
-}
+function updPrecPed(i){ const l=lPed[i]; let pr=0,fj=false; if(l.pId&&cPed){ const t=cPed.tarifas[l.pId]; if(t&&t>0){pr=t;fj=true;} } lPed[i].precio=pr; lPed[i].fijo=fj; }
+
 async function guardarPed(){
   const cId=document.getElementById("pc").value;
   const fecha=document.getElementById("pf").value;
   const obs=document.getElementById("po").value.trim();
   if(!cId){showToast("Selecciona un cliente","error");return;}
   const lv=lPed.filter(l=>l.pId&&l.cant>0);
-  if(!lv.length){showToast("Añade productos","error");return;}
+  if(!lv.length){showToast("Anade productos","error");return;}
   const cli=CLIENTES.find(c=>c.id===cId);
   const total=lv.reduce((a,l)=>a+l.cant*l.precio,0);
   const pedido={clienteId:cId,clienteNombre:cli.nombre,fechaEntrega:fecha,observaciones:obs,
@@ -671,85 +601,125 @@ async function guardarPed(){
   document.getElementById("sp-ped").style.display="block";
   try{
     const r=await jpost("savePedido",{pedido});
-    if(r.success){showToast("✓ Pedido "+r.numero+" guardado","success");await cargarTodo();mostrar("pedidos");}
+    if(r.success){showToast("Pedido "+r.numero+" guardado","success");await cargarTodo();mostrar("pedidos");}
     else showToast("Error: "+r.error,"error");
-  }catch(e){showToast("Error de conexión","error");}
+  }catch(e){showToast("Error de conexion","error");}
   document.getElementById("sp-ped").style.display="none";
 }
-function verPed(id){
-  const p=PEDIDOS.find(x=>x.id===id); if(!p) return;
-  const prods=p.lineas?p.lineas.map(l=>l.nombre+" x"+l.cantidad).join("\n"):"";
-  alert(`${p.numero} — ${p.clienteNombre}\nEntrega: ${ffCorta(p.fechaEntrega)}\nEstado: ${p.estado}\nProductos:\n${prods}\nObs: ${p.observaciones||"-"}`);
-}
+function verPed(id){ const p=PEDIDOS.find(x=>x.id===id); if(!p) return; const prods=p.lineas?p.lineas.map(l=>l.nombre+" x"+l.cantidad).join("\n"):""; alert(p.numero+" -- "+p.clienteNombre+"\nEntrega: "+ffCorta(p.fechaEntrega)+"\nEstado: "+p.estado+"\n\n"+prods+(p.observaciones?"\n\nObs: "+p.observaciones:"")); }
 
 // ══════════════════════════════════════════════
-// ÓRDENES DE TRABAJO
+// ORDENES DE TRABAJO
 // ══════════════════════════════════════════════
 function vOrdenes(){
-  const pends=PEDIDOS.filter(p=>p.estado==="pendiente"||p.estado==="listo"||p.estado==="completado");
-  if(!pends.length) return `<div class="card" style="text-align:center;padding:3rem;color:var(--ink-light);">
-    <div style="font-size:48px;margin-bottom:1rem;">✅</div>
-    <div style="font-size:16px;font-weight:500;">No hay órdenes pendientes</div>
-  </div>`;
+  // Ordenar por fecha de entrega, mas urgente primero
+  const pends=[...PEDIDOS].filter(p=>p.estado==="pendiente"||p.estado==="listo"||p.estado==="completado")
+    .sort((a,b)=>new Date(a.fechaEntrega||"9999")-new Date(b.fechaEntrega||"9999"));
+  if(!pends.length) return `<div class="card" style="text-align:center;padding:3rem;color:var(--ink-light);"><div style="font-size:48px;margin-bottom:1rem;">OK</div><div style="font-size:16px;font-weight:500;">No hay ordenes pendientes</div></div>`;
   return pends.map(p=>{
-    const lins=p.lineas?p.lineas.map(l=>{
+    const hoy=new Date();
+    const esHoy=p.fechaEntrega&&new Date(p.fechaEntrega+"T12:00:00").toDateString()===hoy.toDateString();
+    const esPasado=p.fechaEntrega&&new Date(p.fechaEntrega+"T12:00:00")<hoy&&!esHoy;
+    
+    // Verificar stock por linea
+    const linsConStock=[], linsSinStock=[];
+    if(p.lineas) p.lineas.forEach(l=>{
       const stk=STOCK[l.productoId]||0;
-      const ok=stk>=l.cantidad;
-      return `<div class="ot-linea">
-        <span class="pn">${l.nombre}</span>
-        <span class="info">
-          <span class="cant">${l.cantidad} ud · Stock: ${stk}</span>
-          <span class="${ok?"ok-stk":"nok-stk"}">${ok?"✓ OK":"⚠ Falta"}</span>
-        </span>
-      </div>`;
-    }).join(""):"";
-    const obs=p.observaciones?`<div class="ot-obs"><div class="ot-obs-lbl">Observaciones</div>${p.observaciones}</div>`:"";
+      if(stk>=l.cantidad) linsConStock.push(l);
+      else linsSinStock.push({...l, stockDisp:stk});
+    });
+    
+    const linsHTML=(p.lineas||[]).map(l=>{
+      const stk=STOCK[l.productoId]||0; const ok=stk>=l.cantidad;
+      return `<div class="ot-linea"><span class="pn">${l.nombre}</span><span class="info"><span class="cant">${l.cantidad} ud · Stock: ${stk}</span><span class="${ok?"ok-stk":"nok-stk"}">${ok?" OK":" Falta "+(l.cantidad-stk)}</span></span></div>`;
+    }).join("");
+    
+    const warnHTML=linsSinStock.length>0?`<div class="ot-warn">Stock insuficiente: ${linsSinStock.map(l=>l.nombre+" (faltan "+(l.cantidad-l.stockDisp)+")").join(", ")}</div>`:"";
+    const obsHTML=p.observaciones?`<div class="ot-obs">${p.observaciones}</div>`:"";
+    
     const acciones=perfil==="admin"?`<div class="ot-actions">
-      ${p.estado==="pendiente"?`<button class="btn btn-sm btn-green" onclick="updEstado('${p.id}','listo')">✓ Listo para envio</button>`:""}
-      ${p.estado==="listo"?`<button class="btn btn-sm btn-accent" onclick="updEstado('${p.id}','completado')">Completado</button>`:""}
-      ${p.estado==="completado"?`<button class="btn btn-sm btn-green" onclick="albDesde('${p.id}')">📄 Generar albarán</button>`:""}
+      ${p.estado==="pendiente"?`<button class="btn btn-sm btn-green" onclick="marcarListo('${p.id}')">Listo para envio</button>`:""}
+      ${p.estado==="listo"?`<button class="btn btn-sm btn-accent" onclick="marcarCompletado('${p.id}')">Completado</button>`:""}
+      ${p.estado==="completado"?`<button class="btn btn-sm btn-green" onclick="albDesde('${p.id}')">Generar albaran</button>`:""}
     </div>`:"";
-    return `<div class="ot-card">
+    
+    return `<div class="ot-card" style="${(esHoy||esPasado)?"border-left:3px solid var(--red);":""}">
       <div class="ot-head">
         <div>
           <div class="ot-num">${p.numero}</div>
           <div class="ot-cliente">${p.clienteNombre}</div>
-          <div class="ot-fecha">Entrega: ${ffCorta(p.fechaEntrega)}</div>
+          <div class="ot-fecha" style="${esHoy?"color:var(--red);font-weight:700;":esPasado?"color:var(--red);":""}">${esHoy?"HOY - ":esPasado?"VENCIDO - ":""}Entrega: ${ffCorta(p.fechaEntrega)}</div>
         </div>
-        <span class="badge b-${p.estado==="pendiente"?"pend":p.estado==="en_curso"?"prog":p.estado==="listo"?"done":"sent"}">${p.estado}</span>
+        <span class="badge b-${p.estado==="pendiente"?"pend":p.estado==="listo"?"done":"comp"}">${p.estado}</span>
       </div>
-      <div>${lins}</div>
-      ${obs}
-      ${acciones}
+      <div>${linsHTML}</div>
+      ${warnHTML}${obsHTML}${acciones}
     </div>`;
   }).join("");
 }
-async function updEstado(id,estado){
+
+async function marcarListo(id){
+  const p=PEDIDOS.find(x=>x.id===id); if(!p) return;
+  // Verificar stock
+  const sinStock=(p.lineas||[]).filter(l=>{ const s=STOCK[l.productoId]||0; return s<l.cantidad; });
+  if(sinStock.length>0){
+    const msg="ATENCION: Falta stock de:\n"+sinStock.map(l=>l.nombre+": necesitas "+l.cantidad+", tienes "+(STOCK[l.productoId]||0)).join("\n")+"\n\nEl albaran solo incluira productos con stock disponible.\n\nContinuar de todas formas?";
+    if(!confirm(msg)) return;
+  }
   try{
-    const r=await jpost("updatePedido",{id,estado});
-    if(r.success){showToast("Estado actualizado","success");await cargarTodo();mostrar("ordenes");}
+    const r=await jpost("updatePedido",{id,estado:"listo"});
+    if(r.success){showToast("Pedido listo para envio","success");await cargarTodo();mostrar("ordenes");}
     else showToast("Error","error");
-  }catch(e){showToast("Error de conexión","error");}
+  }catch(e){showToast("Error de conexion","error");}
+}
+
+async function marcarCompletado(id){
+  try{
+    const r=await jpost("updatePedido",{id,estado:"completado"});
+    if(r.success){showToast("Pedido completado","success");await cargarTodo();mostrar("ordenes");}
+    else showToast("Error","error");
+  }catch(e){showToast("Error de conexion","error");}
+}
+
+// Generar albaran desde pedido completado
+function albDesde(pedidoId){
+  const p=PEDIDOS.find(x=>x.id===pedidoId); if(!p){showToast("Pedido no encontrado","error");return;}
+  mostrar("albaran");
+  setTimeout(()=>{
+    const sel=document.getElementById("ac"); if(sel){sel.value=p.clienteId;onAlbCli();}
+    const fEl=document.getElementById("af"); if(fEl) fEl.value=new Date().toISOString().split("T")[0];
+    const nEl=document.getElementById("an"); if(nEl) nEl.value="Ref. pedido "+p.numero+(p.observaciones?" · "+p.observaciones:"");
+    // Solo incluir productos con stock suficiente
+    lAlb=[]; idAlb=0;
+    if(p.lineas&&p.lineas.length){
+      p.lineas.forEach(l=>{
+        const stk=STOCK[l.productoId]||0;
+        if(stk>0){
+          // Si hay menos stock que lo pedido, usar el stock disponible
+          const cantReal=Math.min(l.cantidad,stk);
+          lAlb.push({id:idAlb++,pId:l.productoId,cant:cantReal,precio:l.precio,fijo:true});
+        }
+      });
+    }
+    if(!lAlb.length) addLAlb();
+    else renderLAlb();
+    window.albPedidoOrigen=pedidoId;
+    showToast("Albaran cargado desde pedido "+p.numero,"success");
+  },300);
 }
 
 // ══════════════════════════════════════════════
-// PRODUCCIÓN
+// PRODUCCION
 // ══════════════════════════════════════════════
 function vProduccion(){
   const prods=PRODUCTOS.filter(p=>p.id!=="portes");
   return `<div class="card">
-    <div class="section-label">Registrar producción</div>
+    <div class="section-label">Registrar produccion</div>
     <div class="field"><label>Fecha</label><input type="date" id="prod-f" value="${new Date().toISOString().split("T")[0]}"></div>
-    <div style="margin:.75rem 0;">
-      ${prods.map(p=>`<div class="prod-row">
-        <div class="prod-nombre">${p.nombre} <span style="font-size:11px;color:var(--ink-light);">(${p.unidad})</span></div>
-        <div class="prod-stk">Stock: ${STOCK[p.id]||0}</div>
-        <input type="number" min="0" step="1" value="0" id="pr-${p.id}" class="prod-inp" placeholder="0">
-      </div>`).join("")}
-    </div>
-    <div class="field"><label>Notas</label><textarea id="prod-n" placeholder="Incidencias, observaciones..."></textarea></div>
+    <div style="margin:.75rem 0;">${prods.map(p=>`<div class="prod-row"><div class="prod-nombre">${p.nombre} <span style="font-size:11px;color:var(--ink-light);">(${p.unidad})</span></div><div class="prod-stk">Stock: ${STOCK[p.id]||0}</div><input type="number" min="0" step="1" value="0" id="pr-${p.id}" class="prod-inp" placeholder="0"></div>`).join("")}</div>
+    <div class="field"><label>Notas</label><textarea id="prod-n" placeholder="Incidencias..."></textarea></div>
     <div style="display:flex;justify-content:flex-end;margin-top:1rem;">
-      <button class="btn btn-green" onclick="guardarProd()">✓ Registrar producción <div class="sp" id="sp-prod"></div></button>
+      <button class="btn btn-green" onclick="guardarProd()">Registrar produccion <div class="sp" id="sp-prod"></div></button>
     </div>
   </div>`;
 }
@@ -762,12 +732,9 @@ async function guardarProd(){
   document.getElementById("sp-prod").style.display="block";
   try{
     const r=await jpost("saveProduccion",{fecha,notas,producciones:prod});
-    if(r.success){
-      prod.forEach(p=>{ STOCK[p.productoId]=(STOCK[p.productoId]||0)+p.cantidad; });
-      showToast("✓ Producción registrada. Stock actualizado","success");
-      mostrar("produccion");
-    }else showToast("Error: "+r.error,"error");
-  }catch(e){showToast("Error de conexión","error");}
+    if(r.success){ prod.forEach(p=>{ STOCK[p.productoId]=(STOCK[p.productoId]||0)+p.cantidad; }); showToast("Produccion registrada","success"); mostrar("produccion"); }
+    else showToast("Error: "+r.error,"error");
+  }catch(e){showToast("Error de conexion","error");}
   document.getElementById("sp-prod").style.display="none";
 }
 
@@ -776,123 +743,66 @@ async function guardarProd(){
 // ══════════════════════════════════════════════
 function vStock(){
   const prods=PRODUCTOS.filter(p=>p.id!=="portes");
-  const total=prods.reduce((a,p)=>a+(STOCK[p.id]||0),0);
   return `<div class="card">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.75rem;">
-      <div class="section-label" style="margin:0;border:none;padding:0;">Stock actual · ${new Date().toLocaleDateString("es-ES")}</div>
-      <button class="btn btn-sm btn-outline" onclick="recargar()">🔄 Actualizar</button>
+      <div class="section-label" style="margin:0;border:none;padding:0;">Stock actual</div>
+      <button class="btn btn-sm btn-outline" onclick="recargar()">Actualizar</button>
     </div>
-    <div class="stock-grid">
-      ${prods.map(p=>{const q=STOCK[p.id]||0;return`<div class="stock-card ${q<10?"low":""}">
-        <div class="sn">${p.nombre}</div>
-        <div class="sv">${q}</div>
-        <div class="su">${p.unidad}</div>
-      </div>`;}).join("")}
-    </div>
-    <div style="margin-top:1rem;text-align:right;font-family:var(--mono);font-size:12px;color:var(--ink-light);">Total: ${total} unidades</div>
+    <div class="stock-grid">${prods.map(p=>{ const q=STOCK[p.id]||0; return`<div class="stock-card ${q<10?"low":""}"><div class="sn">${p.nombre}</div><div class="sv">${q}</div><div class="su">${p.unidad}</div></div>`; }).join("")}</div>
   </div>`;
 }
 
 // ══════════════════════════════════════════════
-// ALBARÁN
+// ALBARAN
 // ══════════════════════════════════════════════
 let lAlb=[], cAlb=null, idAlb=0, albData=null;
 
 function vAlbaran(){
   return `
   <div class="card">
-    <div class="section-label">01 — Cliente</div>
+    <div class="section-label">01 -- Cliente</div>
     <div class="g2">
       <div class="field"><label>Cliente</label>
-        <select id="ac" onchange="onAlbCli()">
-          <option value="">— Elegir cliente —</option>
+        <select id="ac" onchange="onAlbCli()"><option value="">-- Elegir cliente --</option>
           ${CLIENTES.map(c=>`<option value="${c.id}">${c.nombre}</option>`).join("")}
         </select>
       </div>
-      <div class="field"><label>Fecha de envío</label><input type="date" id="af"></div>
+      <div class="field"><label>Fecha de envio</label><input type="date" id="af"></div>
     </div>
     <div id="alb-ci" style="display:none;margin-top:.5rem;padding:8px 12px;background:var(--paper);border-radius:6px;border:1px solid var(--border);font-size:12px;color:var(--ink-mid);"></div>
   </div>
   <div class="card">
-    <div class="section-label">02 — Productos</div>
+    <div class="section-label">02 -- Productos</div>
     <div class="lh"><span>Concepto</span><span>Cantidad</span><span>Precio</span><span style="text-align:right">Subtotal</span><span></span></div>
     <div id="al"></div>
-    <button class="btn-add" onclick="addLAlb()">+ Añadir línea</button>
+    <button class="btn-add" onclick="addLAlb()">+ Anadir linea</button>
   </div>
   <div class="card" style="padding:1rem 1.5rem;">
-    <div class="total-area">
-      <div class="total-box">
-        <div class="total-label">Base imponible total</div>
-        <div class="total-amount" id="alb-tot"><span style="font-size:16px;font-weight:300;">€</span>0,00</div>
-      </div>
-    </div>
+    <div class="total-area"><div class="total-box"><div class="total-label">Base imponible total</div><div class="total-amount" id="alb-tot"><span style="font-size:16px;font-weight:300;">EUR</span>0,00</div></div></div>
   </div>
-  <div class="card">
-    <div class="section-label">03 — Notas</div>
-    <textarea id="an" placeholder="Observaciones del pedido..."></textarea>
-  </div>
+  <div class="card"><div class="section-label">03 -- Notas</div><textarea id="an" placeholder="Observaciones..."></textarea></div>
   <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-top:1rem;">
-    <button class="btn btn-green" onclick="guardarDrive('directo')" id="btn-drv">↑ Guardar en Drive <div class="sp" id="sp-drv"></div></button>
-    <button class="btn btn-primary" onclick="prevAlb()">🖨 Previsualizar e imprimir</button>
+    <button class="btn btn-green" onclick="guardarDrive('directo')" id="btn-drv">Guardar en Drive <div class="sp" id="sp-drv"></div></button>
+    <button class="btn btn-primary" onclick="prevAlb()">Previsualizar e imprimir</button>
   </div>
   ${perfil==="admin"?`
   <div class="card" style="margin-top:1.25rem;">
-    <div class="section-label">04 — Facturación mensual</div>
+    <div class="section-label">04 -- Facturacion mensual</div>
     <div style="display:flex;gap:1rem;align-items:flex-end;flex-wrap:wrap;">
       <div class="field" style="margin:0;flex:1;min-width:130px;"><label>Mes</label>
         <select id="fm">${["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"].map((m,i)=>`<option value="${i}" ${i===new Date().getMonth()-1?"selected":""}>${m}</option>`).join("")}</select>
       </div>
-      <div class="field" style="margin:0;flex:1;min-width:80px;"><label>Año</label>
+      <div class="field" style="margin:0;flex:1;min-width:80px;"><label>Anno</label>
         <select id="fa"><option value="2025">2025</option><option value="2026" selected>2026</option><option value="2027">2027</option></select>
       </div>
-      <button class="btn btn-primary" onclick="facturar()" style="flex:2;min-width:160px;">🧾 Generar facturas <div class="sp" id="sp-fac"></div></button>
+      <button class="btn btn-primary" onclick="facturar()" style="flex:2;min-width:160px;">Generar facturas <div class="sp" id="sp-fac"></div></button>
     </div>
   </div>`:""}`;
 }
 
-function albDesde(pedidoId){
-  // Cargar datos del pedido en el formulario de albarán
-  const p=PEDIDOS.find(x=>x.id===pedidoId);
-  if(!p){ showToast("Pedido no encontrado","error"); return; }
-  
-  // Navegar a la vista albarán
-  mostrar("albaran");
-  
-  // Esperar a que se renderice y luego rellenar
-  setTimeout(()=>{
-    // Seleccionar cliente
-    const sel=document.getElementById("ac");
-    if(sel){ sel.value=p.clienteId; onAlbCli(); }
-    
-    // Fecha de hoy
-    const fEl=document.getElementById("af");
-    if(fEl) fEl.value=new Date().toISOString().split("T")[0];
-    
-    // Referencia al pedido en notas
-    const nEl=document.getElementById("an");
-    if(nEl) nEl.value="Ref. pedido "+p.numero+(p.observaciones?" · "+p.observaciones:"");
-    
-    // Limpiar líneas y añadir las del pedido
-    lAlb=[]; idAlb=0;
-    if(p.lineas&&p.lineas.length){
-      p.lineas.forEach(l=>{
-        lAlb.push({id:idAlb++, pId:l.productoId, cant:l.cantidad, precio:l.precio, fijo:true});
-      });
-    }
-    renderLAlb();
-    
-    // Guardar referencia al pedido origen
-    window.albPedidoOrigen=pedidoId;
-    
-    showToast("Albarán cargado desde pedido "+p.numero,"success");
-  }, 300);
-}
-
 function initAlb(){
   document.getElementById("af").value=new Date().toISOString().split("T")[0];
-  lAlb=[]; idAlb=0; cAlb=null;
-  window.albPedidoOrigen=null;
-  // Reset cliente select
+  lAlb=[]; idAlb=0; cAlb=null; window.albPedidoOrigen=null;
   const sel=document.getElementById("ac"); if(sel) sel.value="";
   const ci=document.getElementById("alb-ci"); if(ci) ci.style.display="none";
   const an=document.getElementById("an"); if(an) an.value="";
@@ -902,11 +812,8 @@ function onAlbCli(){
   const id=document.getElementById("ac").value;
   cAlb=CLIENTES.find(c=>c.id===id)||null;
   const ci=document.getElementById("alb-ci");
-  if(cAlb){
-    const em=cAlb.email?" · "+cAlb.email:" · (sin email)";
-    ci.innerHTML=`<strong>${cAlb.nombre}</strong> · ${cAlb.cif} · ${cAlb.ciudad}${em}`;
-    ci.style.display="block";
-  }else ci.style.display="none";
+  if(cAlb){ ci.innerHTML=`<strong>${cAlb.nombre}</strong> · ${cAlb.cif} · ${cAlb.ciudad}${cAlb.email?" · "+cAlb.email:" · (sin email)"}`;ci.style.display="block"; }
+  else ci.style.display="none";
   lAlb.forEach((_,i)=>updPrecAlb(i)); renderLAlb();
 }
 function addLAlb(){ lAlb.push({id:idAlb++,pId:"",cant:1,precio:0,fijo:false}); renderLAlb(); }
@@ -915,43 +822,20 @@ function renderLAlb(){
   const c=document.getElementById("al"); if(!c) return;
   c.innerHTML=lAlb.map(l=>{
     const prods=cAlb?PRODUCTOS.filter(p=>p.id==="portes"||(cAlb.tarifas&&cAlb.tarifas[p.id]!==undefined)):PRODUCTOS;
-    const opts='<option value="">— Producto —</option>'+prods.map(p=>`<option value="${p.id}" ${l.pId===p.id?"selected":""}>${p.nombre}</option>`).join("");
-    const pH=l.fijo?`<div class="pf">€ ${l.precio.toFixed(2)}</div>`:`<input type="number" min="0" step="0.01" class="pf pm" value="${l.precio||""}" onchange="onPAlbM(${l.id},this.value)" placeholder="Precio">`;
-    const st=l.pId&&l.cant>0&&l.precio>0?"€ "+(l.cant*l.precio).toFixed(2):"—";
-    return `<div class="lr">
-      <select onchange="onProdAlb(${l.id},this.value)">${opts}</select>
-      <input type="number" min="0" step="0.01" value="${l.cant}" onchange="onCantAlb(${l.id},this.value)">
-      ${pH}<div class="sc">${st}</div>
-      <button class="brm" onclick="remLAlb(${l.id})">×</button>
-    </div>`;
+    const opts='<option value="">-- Producto --</option>'+prods.map(p=>`<option value="${p.id}" ${l.pId===p.id?"selected":""}>${p.nombre}</option>`).join("");
+    const pH=l.fijo?`<div class="pf">EUR ${l.precio.toFixed(2)}</div>`:`<input type="number" min="0" step="0.01" class="pf pm" value="${l.precio||""}" onchange="onPAlbM(${l.id},this.value)" placeholder="Precio">`;
+    const st=l.pId&&l.cant>0&&l.precio>0?"EUR "+(l.cant*l.precio).toFixed(2):"--";
+    return `<div class="lr"><select onchange="onProdAlb(${l.id},this.value)">${opts}</select><input type="number" min="0" step="0.01" value="${l.cant}" onchange="onCantAlb(${l.id},this.value)">${pH}<div class="sc">${st}</div><button class="brm" onclick="remLAlb(${l.id})">x</button></div>`;
   }).join("");
   calcTot();
 }
 function onProdAlb(id,v){ const i=lAlb.findIndex(l=>l.id===id); lAlb[i].pId=v; updPrecAlb(i); renderLAlb(); }
 function onCantAlb(id,v){ const i=lAlb.findIndex(l=>l.id===id); lAlb[i].cant=parseFloat(v)||0; renderLAlb(); }
 function onPAlbM(id,v){ const i=lAlb.findIndex(l=>l.id===id); lAlb[i].precio=parseFloat(v)||0; renderLAlb(); }
-function updPrecAlb(i){
-  const l=lAlb[i]; let pr=0,fj=false;
-  if(l.pId&&cAlb){ const t=cAlb.tarifas[l.pId]; if(t&&t>0){pr=t;fj=true;} }
-  lAlb[i].precio=pr; lAlb[i].fijo=fj;
-}
-function calcTot(){
-  const t=lAlb.reduce((a,l)=>l.pId&&l.cant>0&&l.precio>0?a+l.cant*l.precio:a,0);
-  const el=document.getElementById("alb-tot");
-  if(el) el.innerHTML=`<span style="font-size:16px;font-weight:300;">€</span>${t.toFixed(2).replace(".",",")}`;
-  return t;
-}
-function buildAlbData(){
-  const fecha=document.getElementById("af").value;
-  const notas=document.getElementById("an").value.trim();
-  const lv=lAlb.filter(l=>l.pId&&l.cant>0&&l.precio>0);
-  const total=lv.reduce((a,l)=>a+l.cant*l.precio,0);
-  return { numero:nextNum||"ALB-XXXX", fecha, empresa:CFG.emp, cliente:cAlb,
-    lineas:lv.map(l=>{ const p=PRODUCTOS.find(x=>x.id===l.pId);
-      return {productoId:l.pId,nombre:p?.nombre||l.pId,descripcion:p?.descripcion||"",unidad:p?.unidad||"ud",cantidad:l.cant,precio:l.precio,subtotal:+(l.cant*l.precio).toFixed(2)}; }),
-    total:+total.toFixed(2), notas };
-}
-function valAlb(){ if(!cAlb){showToast("Selecciona un cliente","error");return false;} if(!lAlb.filter(l=>l.pId&&l.cant>0&&l.precio>0).length){showToast("Añade productos","error");return false;} return true; }
+function updPrecAlb(i){ const l=lAlb[i]; let pr=0,fj=false; if(l.pId&&cAlb){ const t=cAlb.tarifas[l.pId]; if(t&&t>0){pr=t;fj=true;} } lAlb[i].precio=pr; lAlb[i].fijo=fj; }
+function calcTot(){ const t=lAlb.reduce((a,l)=>l.pId&&l.cant>0&&l.precio>0?a+l.cant*l.precio:a,0); const el=document.getElementById("alb-tot"); if(el) el.innerHTML=`<span style="font-size:16px;font-weight:300;">EUR</span>${t.toFixed(2).replace(".",",")}`;return t; }
+function buildAlbData(){ const fecha=document.getElementById("af").value; const notas=document.getElementById("an").value.trim(); const lv=lAlb.filter(l=>l.pId&&l.cant>0&&l.precio>0); const total=lv.reduce((a,l)=>a+l.cant*l.precio,0); return{numero:nextNum||"ALB-XXXX",fecha,empresa:CFG.emp,cliente:cAlb,lineas:lv.map(l=>{const p=PRODUCTOS.find(x=>x.id===l.pId);return{productoId:l.pId,nombre:p?.nombre||l.pId,descripcion:p?.descripcion||"",unidad:p?.unidad||"ud",cantidad:l.cant,precio:l.precio,subtotal:+(l.cant*l.precio).toFixed(2)};}),total:+total.toFixed(2),notas}; }
+function valAlb(){ if(!cAlb){showToast("Selecciona un cliente","error");return false;} if(!lAlb.filter(l=>l.pId&&l.cant>0&&l.precio>0).length){showToast("Anade productos","error");return false;} return true; }
 function prevAlb(){ if(!valAlb())return; albData=buildAlbData(); document.getElementById("albaran-content").innerHTML=renderAlbHTML(albData); document.getElementById("modal-alb").classList.add("open"); }
 function cerrarAlb(){ document.getElementById("modal-alb").classList.remove("open"); }
 
@@ -967,50 +851,26 @@ async function guardarDrive(origen){
     const r=await jpost("saveAlbaran",{albaran:data,htmlContent:html});
     if(r.success){
       nextNum=r.nextNum||nextNum;
-      showToast("✓ "+data.numero+" guardado"+(r.emailEnviado?" · Email enviado":""),"success");
+      showToast(data.numero+" guardado"+(r.emailEnviado?" · Email enviado":""),"success");
       if(origen==="modal") cerrarAlb();
       data.lineas.forEach(l=>{ if(l.productoId!=="portes") STOCK[l.productoId]=Math.max(0,(STOCK[l.productoId]||0)-l.cantidad); });
       REGISTRO.unshift({numero:data.numero,cliente:data.cliente.nombre,total:data.total,fecha:data.fecha});
-      // Si el albarán viene de un pedido, marcarlo como enviado
       if(window.albPedidoOrigen){
-        try{
-          await jpost("updatePedido",{id:window.albPedidoOrigen,estado:"enviado"});
-          const idx=PEDIDOS.findIndex(p=>p.id===window.albPedidoOrigen);
-          if(idx>-1) PEDIDOS[idx].estado="enviado";
-        }catch(e){ console.log("Error actualizando pedido:",e); }
+        try{ await jpost("updatePedido",{id:window.albPedidoOrigen,estado:"enviado"}); const idx=PEDIDOS.findIndex(p=>p.id===window.albPedidoOrigen); if(idx>-1) PEDIDOS[idx].estado="enviado"; }catch(e){}
         window.albPedidoOrigen=null;
       }
       initAlb(); albData=null;
     }else showToast("Error: "+r.error,"error");
-  }catch(e){showToast("Error de conexión","error");}
+  }catch(e){showToast("Error de conexion","error");}
   document.getElementById(spId).style.display="none";
   document.getElementById(btnId).disabled=false;
 }
 
 function renderAlbHTML(d){
   const fFmt=new Date(d.fecha+"T12:00:00").toLocaleDateString("es-ES",{day:"2-digit",month:"long",year:"numeric"});
-  const filas=d.lineas.map(l=>`<tr>
-    <td><strong>${l.nombre}</strong><br><span style="color:#777;font-size:10px;">${l.descripcion}</span></td>
-    <td style="text-align:center;">${l.cantidad} ${l.unidad}</td>
-    <td style="text-align:right;font-family:monospace;">€ ${l.precio.toFixed(2)}</td>
-    <td style="text-align:right;font-family:monospace;font-weight:600;">€ ${l.subtotal.toFixed(2)}</td>
-  </tr>`).join("");
-  const notas=d.notas?`<div class="ap-notas"><div style="font-size:9px;text-transform:uppercase;letter-spacing:1px;color:#888;font-family:monospace;margin-bottom:3px;">Notas</div>${d.notas}</div>`:"";
-  return `<div>
-    <div class="ap-header">
-      <div><div class="ap-empresa">${d.empresa.nombre}</div><div class="ap-sub">${d.empresa.direccion} · ${d.empresa.ciudad}</div><div class="ap-sub">CIF ${d.empresa.cif} · ${d.empresa.tel}</div></div>
-      <div class="ap-num-box"><div class="ap-num-lbl">Albarán</div><div class="ap-num">${d.numero}</div><div class="ap-date">${fFmt}</div></div>
-    </div>
-    <hr class="ap-hr">
-    <div class="ap-partes">
-      <div><div class="ap-lbl">Vendedor</div><div class="ap-name">${d.empresa.nombre}</div><div class="ap-info">${d.empresa.email}</div></div>
-      <div><div class="ap-lbl">Cliente</div><div class="ap-name">${d.cliente.nombre}</div><div class="ap-info">${d.cliente.cif} · ${d.cliente.ciudad}</div><div class="ap-info">${d.cliente.direccion}</div></div>
-    </div>
-    <table class="ap-tbl"><thead><tr><th>Concepto</th><th>Cantidad</th><th>Precio unit.</th><th>Importe</th></tr></thead><tbody>${filas}</tbody></table>
-    <div class="ap-total-row"><div class="ap-total-box"><div class="ap-total-lbl">Base imponible</div><div class="ap-total-val">€ ${d.total.toFixed(2)}</div><div style="font-size:10px;color:#888;margin-top:3px;">IVA no incluido · se facturará aparte</div></div></div>
-    ${notas}
-    <div class="ap-footer"><span>${d.empresa.nombre} · ${d.empresa.cif}</span><span>Generado el ${new Date().toLocaleDateString("es-ES")}</span></div>
-  </div>`;
+  const filas=d.lineas.map(l=>`<tr><td><strong>${l.nombre}</strong><br><span style="color:#777;font-size:10px;">${l.descripcion}</span></td><td style="text-align:center;">${l.cantidad} ${l.unidad}</td><td style="text-align:right;font-family:monospace;">EUR ${l.precio.toFixed(2)}</td><td style="text-align:right;font-family:monospace;font-weight:600;">EUR ${l.subtotal.toFixed(2)}</td></tr>`).join("");
+  const notas=d.notas?`<div class="ap-notas">${d.notas}</div>`:"";
+  return `<div><div class="ap-header"><div><div class="ap-empresa">${d.empresa.nombre}</div><div class="ap-sub">${d.empresa.direccion} · ${d.empresa.ciudad}</div><div class="ap-sub">CIF ${d.empresa.cif} · ${d.empresa.tel}</div></div><div class="ap-num-box"><div class="ap-num-lbl">Albaran</div><div class="ap-num">${d.numero}</div><div class="ap-date">${fFmt}</div></div></div><hr class="ap-hr"><div class="ap-partes"><div><div class="ap-lbl">Vendedor</div><div class="ap-name">${d.empresa.nombre}</div><div class="ap-info">${d.empresa.email}</div></div><div><div class="ap-lbl">Cliente</div><div class="ap-name">${d.cliente.nombre}</div><div class="ap-info">${d.cliente.cif} · ${d.cliente.ciudad}</div><div class="ap-info">${d.cliente.direccion||""}</div></div></div><table class="ap-tbl"><thead><tr><th>Concepto</th><th>Cantidad</th><th>Precio unit.</th><th>Importe</th></tr></thead><tbody>${filas}</tbody></table><div class="ap-total-row"><div class="ap-total-box"><div class="ap-total-lbl">Base imponible</div><div class="ap-total-val">EUR ${d.total.toFixed(2)}</div><div style="font-size:10px;color:#888;margin-top:3px;">IVA no incluido</div></div></div>${notas}<div class="ap-footer"><span>${d.empresa.nombre} · ${d.empresa.cif}</span><span>Generado el ${new Date().toLocaleDateString("es-ES")}</span></div></div>`;
 }
 
 // ══════════════════════════════════════════════
@@ -1018,18 +878,74 @@ function renderAlbHTML(d){
 // ══════════════════════════════════════════════
 function vFacturas(){
   const meses=["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
-  return `<div class="card">
-    <div class="section-label">Generar facturas mensuales</div>
+  return `
+  <div class="card">
+    <div class="section-label">Facturas automaticas mensuales</div>
     <div style="display:flex;gap:1rem;align-items:flex-end;flex-wrap:wrap;">
       <div class="field" style="margin:0;flex:1;min-width:130px;"><label>Mes</label>
         <select id="fm2">${meses.map((m,i)=>`<option value="${i}" ${i===new Date().getMonth()-1?"selected":""}>${m}</option>`).join("")}</select>
       </div>
-      <div class="field" style="margin:0;flex:1;min-width:80px;"><label>Año</label>
+      <div class="field" style="margin:0;flex:1;min-width:80px;"><label>Anno</label>
         <select id="fa2"><option value="2025">2025</option><option value="2026" selected>2026</option><option value="2027">2027</option></select>
       </div>
-      <button class="btn btn-primary" onclick="facturar2()" style="flex:2;min-width:160px;">🧾 Generar facturas <div class="sp" id="sp-fac2"></div></button>
+      <button class="btn btn-primary" onclick="facturar2()" style="flex:2;min-width:160px;">Generar facturas del mes <div class="sp" id="sp-fac2"></div></button>
     </div>
+  </div>
+
+  <div class="card">
+    <div class="section-label">Factura manual (sin albaran)</div>
+    <p style="font-size:13px;color:var(--ink-mid);margin-bottom:1rem;">Para facturas que no van vinculadas a albaranes — mantiene la correlacion de numeracion.</p>
+    <button class="btn btn-purple" onclick="abrirFacManual()">+ Nueva factura manual</button>
   </div>`;
+}
+
+function initFacClientes(){
+  const sel=document.getElementById("fm-cliente");
+  if(sel){ sel.innerHTML='<option value="">-- Elegir cliente --</option>'+CLIENTES.map(c=>`<option value="${c.id}">${c.nombre}</option>`).join(""); }
+}
+
+function abrirFacManual(){
+  document.getElementById("fm-fecha").value=new Date().toISOString().split("T")[0];
+  document.getElementById("fm-concepto").value="";
+  document.getElementById("fm-base").value="";
+  document.getElementById("fm-iva").value="10";
+  document.getElementById("fm-total").value="";
+  document.getElementById("fm-notas").value="";
+  const sel=document.getElementById("fm-cliente");
+  if(sel) sel.innerHTML='<option value="">-- Elegir cliente --</option>'+CLIENTES.map(c=>`<option value="${c.id}">${c.nombre}</option>`).join("");
+  document.getElementById("modal-fac-manual").classList.add("open");
+}
+function cerrarFacManual(){ document.getElementById("modal-fac-manual").classList.remove("open"); }
+function calcFacManual(){
+  const base=parseFloat(document.getElementById("fm-base").value)||0;
+  const iva=parseFloat(document.getElementById("fm-iva").value)||0;
+  document.getElementById("fm-total").value="EUR "+(base*(1+iva/100)).toFixed(2);
+}
+async function guardarFacManual(){
+  const cId=document.getElementById("fm-cliente").value;
+  const fecha=document.getElementById("fm-fecha").value;
+  const concepto=document.getElementById("fm-concepto").value.trim();
+  const base=parseFloat(document.getElementById("fm-base").value)||0;
+  const iva=parseFloat(document.getElementById("fm-iva").value)||0;
+  const notas=document.getElementById("fm-notas").value.trim();
+  if(!cId){showToast("Selecciona un cliente","error");return;}
+  if(!concepto){showToast("Introduce un concepto","error");return;}
+  if(!base){showToast("Introduce la base imponible","error");return;}
+  const cli=CLIENTES.find(c=>c.id===cId);
+  const cuotaIva=base*iva/100;
+  const total=base+cuotaIva;
+  document.getElementById("sp-fac-man").style.display="block";
+  try{
+    const r=await jpost("saveFacturaManual",{
+      factura:{clienteId:cId,clienteNombre:cli.nombre,clienteEmail:cli.email||"",clienteCif:cli.cif||"",
+        fecha,concepto,base,ivaPorcentaje:iva,cuotaIva,total,notas,empresa:CFG.emp}
+    });
+    if(r.success){
+      showToast("Factura "+r.numero+" generada","success");
+      cerrarFacManual();
+    }else showToast("Error: "+r.error,"error");
+  }catch(e){showToast("Error de conexion","error");}
+  document.getElementById("sp-fac-man").style.display="none";
 }
 
 async function facturar(){
@@ -1044,7 +960,7 @@ async function facturar2(){
 }
 async function _facturar(mes,año,spId){
   const meses=["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
-  if(!confirm("¿Generar facturas de "+meses[mes]+" "+año+"?")) return;
+  if(!confirm("Generar facturas de "+meses[mes]+" "+año+"?")) return;
   document.getElementById(spId).style.display="block";
   try{
     const r=await jpost("generarFacturas",{mes,año});
@@ -1058,55 +974,117 @@ async function _facturar(mes,año,spId){
 }
 
 // ══════════════════════════════════════════════
-// UTILIDADES
+// MAESTROS (clientes, productos, precios)
 // ══════════════════════════════════════════════
-function renderProdMes(mes, año){
-  const meses=["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
-  if(!window.PRODUCCION_HIST||!window.PRODUCCION_HIST.length){
-    return '<div style="color:var(--ink-light);font-size:13px;text-align:center;padding:.5rem;">Sin datos de produccion. <button class="btn btn-sm btn-outline" style="margin-left:8px;" onclick="cargarProdHist()">Cargar</button></div>';
-  }
-  const filtr=window.PRODUCCION_HIST.filter(function(r){
-    try{ var d=new Date(r.fecha+"T12:00:00"); return d.getMonth()===mes&&d.getFullYear()===año; }catch(e){ return false; }
-  });
-  if(!filtr.length) return '<div style="color:var(--ink-light);font-size:13px;text-align:center;padding:.5rem;">Sin produccion en '+meses[mes]+' '+año+'</div>';
-  var agrup={};
-  filtr.forEach(function(r){ agrup[r.nombre]=(agrup[r.nombre]||0)+r.cantidad; });
-  return '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:.75rem;">'+
-    Object.entries(agrup).map(function(e){ return '<div style="background:var(--paper);border:1px solid var(--border);border-radius:6px;padding:.75rem;display:flex;justify-content:space-between;align-items:center;"><span style="font-size:13px;font-weight:500;">'+e[0]+'</span><span style="font-family:var(--mono);font-size:18px;font-weight:700;color:var(--green);">'+e[1]+'</span></div>'; }).join('')+
-  '</div>';
+function vMaestros(){
+  return `
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+    <div>
+      <div class="card">
+        <div class="section-label">Nuevo cliente</div>
+        <div class="field"><label>Nombre fiscal</label><input type="text" id="nc-nombre" placeholder="Restaurante La Plaza S.L."></div>
+        <div class="field"><label>CIF/NIF</label><input type="text" id="nc-cif" placeholder="B-12345678"></div>
+        <div class="field"><label>Direccion</label><input type="text" id="nc-dir" placeholder="C/ Mayor 12"></div>
+        <div class="g2">
+          <div class="field"><label>CP y Ciudad</label><input type="text" id="nc-ciudad" placeholder="46001 Valencia"></div>
+          <div class="field"><label>Email</label><input type="text" id="nc-email" placeholder="pedidos@cliente.com"></div>
+        </div>
+        <button class="btn btn-green" onclick="guardarCliente()" style="margin-top:.5rem;">Guardar cliente <div class="sp" id="sp-nc"></div></button>
+      </div>
+
+      <div class="card">
+        <div class="section-label">Clientes (${CLIENTES.length})</div>
+        ${CLIENTES.map(c=>`<div style="padding:8px 0;border-bottom:1px solid #f0ece4;font-size:13px;display:flex;justify-content:space-between;align-items:center;">
+          <div><strong>${c.nombre}</strong><div style="font-size:11px;color:var(--ink-light);">${c.cif} · ${c.email||"sin email"}</div></div>
+        </div>`).join("")}
+      </div>
+    </div>
+
+    <div>
+      <div class="card">
+        <div class="section-label">Nuevo producto</div>
+        <div class="field"><label>Nombre</label><input type="text" id="np-nombre" placeholder="Pizza Margherita 280 grs"></div>
+        <div class="field"><label>Descripcion</label><input type="text" id="np-desc" placeholder="Pizza artesana..."></div>
+        <div class="g2">
+          <div class="field"><label>ID unico</label><input type="text" id="np-id" placeholder="p013"></div>
+          <div class="field"><label>Unidad</label><input type="text" id="np-uni" placeholder="ud"></div>
+        </div>
+        <button class="btn btn-green" onclick="guardarProducto()" style="margin-top:.5rem;">Guardar producto <div class="sp" id="sp-np"></div></button>
+      </div>
+
+      <div class="card">
+        <div class="section-label">Asignar precio a cliente</div>
+        <div class="field"><label>Cliente</label>
+          <select id="pr-cli">${CLIENTES.map(c=>`<option value="${c.id}">${c.nombre}</option>`).join("")}</select>
+        </div>
+        <div class="field"><label>Producto</label>
+          <select id="pr-prod">${PRODUCTOS.filter(p=>p.id!=="portes").map(p=>`<option value="${p.id}">${p.nombre}</option>`).join("")}</select>
+        </div>
+        <div class="field"><label>Precio (EUR)</label><input type="number" id="pr-precio" step="0.01" min="0" placeholder="0.00"></div>
+        <button class="btn btn-accent" onclick="guardarPrecio()" style="margin-top:.5rem;">Guardar precio <div class="sp" id="sp-pr"></div></button>
+      </div>
+    </div>
+  </div>`;
 }
 
-async function cargarProdHist(){
+async function guardarCliente(){
+  const nombre=document.getElementById("nc-nombre").value.trim();
+  const cif=document.getElementById("nc-cif").value.trim();
+  const dir=document.getElementById("nc-dir").value.trim();
+  const ciudad=document.getElementById("nc-ciudad").value.trim();
+  const email=document.getElementById("nc-email").value.trim();
+  if(!nombre||!cif){showToast("Nombre y CIF son obligatorios","error");return;}
+  document.getElementById("sp-nc").style.display="block";
   try{
-    var r=await jget(CFG.URL+"?action=getProduccionHist");
-    if(r.produccion) window.PRODUCCION_HIST=r.produccion;
-    var mes=parseInt(document.getElementById("dash-mes")&&document.getElementById("dash-mes").value||new Date().getMonth());
-    var año=parseInt(document.getElementById("dash-año")&&document.getElementById("dash-año").value||new Date().getFullYear());
-    var el=document.getElementById("dash-prod-res");
-    if(el) el.innerHTML=renderProdMes(mes,año);
-  }catch(e){ console.log("Error cargando produccion:",e); }
+    const r=await jpost("saveCliente",{cliente:{nombre,cif,direccion:dir,ciudad,email,tarifas:{}}});
+    if(r.success){showToast("Cliente guardado","success");await cargarTodo();mostrar("maestros");}
+    else showToast("Error: "+r.error,"error");
+  }catch(e){showToast("Error de conexion","error");}
+  document.getElementById("sp-nc").style.display="none";
 }
 
-function updProdMes(){
-  var mes=parseInt(document.getElementById("dash-mes").value);
-  var año=parseInt(document.getElementById("dash-año").value);
-  document.getElementById("dash-prod-res").innerHTML=renderProdMes(mes,año);
+async function guardarProducto(){
+  const id=document.getElementById("np-id").value.trim();
+  const nombre=document.getElementById("np-nombre").value.trim();
+  const desc=document.getElementById("np-desc").value.trim();
+  const uni=document.getElementById("np-uni").value.trim()||"ud";
+  if(!id||!nombre){showToast("ID y nombre son obligatorios","error");return;}
+  if(PRODUCTOS.find(p=>p.id===id)){showToast("Ya existe un producto con ese ID","error");return;}
+  document.getElementById("sp-np").style.display="block";
+  try{
+    const r=await jpost("saveProducto",{producto:{id,nombre,descripcion:desc,unidad:uni}});
+    if(r.success){showToast("Producto guardado","success");await cargarTodo();mostrar("maestros");}
+    else showToast("Error: "+r.error,"error");
+  }catch(e){showToast("Error de conexion","error");}
+  document.getElementById("sp-np").style.display="none";
 }
 
-function ffCorta(f){
-  if(!f) return "—";
-  try{ return new Date(f+"T12:00:00").toLocaleDateString("es-ES",{day:"2-digit",month:"2-digit",year:"numeric"}); }
-  catch(e){ return f; }
+async function guardarPrecio(){
+  const cliId=document.getElementById("pr-cli").value;
+  const prodId=document.getElementById("pr-prod").value;
+  const precio=parseFloat(document.getElementById("pr-precio").value)||0;
+  if(!cliId||!prodId||!precio){showToast("Rellena todos los campos","error");return;}
+  document.getElementById("sp-pr").style.display="block";
+  try{
+    const r=await jpost("savePrecio",{clienteId:cliId,productoId:prodId,precio});
+    if(r.success){
+      // Actualizar local
+      const cli=CLIENTES.find(c=>c.id===cliId);
+      if(cli){ if(!cli.tarifas) cli.tarifas={}; cli.tarifas[prodId]=precio; }
+      showToast("Precio actualizado","success");
+    }else showToast("Error: "+r.error,"error");
+  }catch(e){showToast("Error de conexion","error");}
+  document.getElementById("sp-pr").style.display="none";
 }
 
+// ══════════════════════════════════════════════
+// UTILS
+// ══════════════════════════════════════════════
+function ffCorta(f){ if(!f) return "--"; try{ return new Date(f+"T12:00:00").toLocaleDateString("es-ES",{day:"2-digit",month:"2-digit",year:"numeric"}); }catch(e){ return f; } }
 let toastT;
-function showToast(msg,type){
-  const t=document.getElementById("toast");
-  t.textContent=msg; t.className="toast show"+(type?" "+type:"");
-  clearTimeout(toastT); toastT=setTimeout(()=>t.classList.remove("show"),3500);
-}
-
+function showToast(msg,type){ const t=document.getElementById("toast"); t.textContent=msg; t.className="toast show"+(type?" "+type:""); clearTimeout(toastT); toastT=setTimeout(()=>t.classList.remove("show"),3500); }
 document.getElementById("modal-alb").addEventListener("click",function(e){ if(e.target===this) cerrarAlb(); });
+document.getElementById("modal-fac-manual").addEventListener("click",function(e){ if(e.target===this) cerrarFacManual(); });
 </script>
 </body>
 </html>
