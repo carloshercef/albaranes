@@ -1111,8 +1111,7 @@ function vMaestros(){
 
 function editarPrecio(cliId, prodId, precioActual){
   const prod=PRODUCTOS.find(p=>p.id===prodId);
-  const nuevo=prompt("Nuevo precio para "+(prod?prod.nombre:prodId)+":
-(Actual: EUR "+precioActual.toFixed(2)+")", precioActual.toFixed(2));
+  const nuevo=prompt("Nuevo precio para "+(prod?prod.nombre:prodId)+" (Actual: EUR "+precioActual.toFixed(2)+")", precioActual.toFixed(2));
   if(nuevo===null) return;
   const precio=parseFloat(nuevo);
   if(isNaN(precio)||precio<0){showToast("Precio no valido","error");return;}
