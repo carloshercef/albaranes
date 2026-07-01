@@ -445,6 +445,7 @@ function mostrar(id){
   if(id==="albaran"){ initAlb(); }
   if(id==="pedidos"){ initPed(); }
   if(id==="facturas"){ initFacClientes(); }
+  if(id==="maestros"){ setTimeout(renderFichasClientes, 50); }
 }
 
 // ══════════════════════════════════════════════
@@ -1027,6 +1028,38 @@ async function _facturar(mes,año,spId){
 // ══════════════════════════════════════════════
 // MAESTROS (clientes, productos, precios)
 // ══════════════════════════════════════════════
+function renderFichasClientes(){
+  var el=document.getElementById("fichas-clientes");
+  if(!el) return;
+  el.innerHTML=CLIENTES.map(function(c){
+    var prodsCli=PRODUCTOS.filter(function(p){ return p.id!=="portes"&&c.tarifas&&c.tarifas[p.id]!==undefined; });
+    var prodsHTML=prodsCli.length?prodsCli.map(function(p){
+      return '<div style="display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid #f8f4ee;font-size:12px;">'+
+        '<span style="color:var(--ink-mid);">'+p.nombre+' <span style="color:var(--ink-light);">('+p.unidad+')</span></span>'+
+        '<div style="display:flex;align-items:center;gap:8px;">'+
+        '<span style="font-family:var(--mono);font-weight:600;">EUR '+c.tarifas[p.id].toFixed(2)+'</span>'+
+        '<button class="btn btn-sm btn-outline" onclick="editarPrecio(''+c.id+'',''+p.id+'','+c.tarifas[p.id]+')">Editar</button>'+
+        '</div></div>';
+    }).join(""):'<div style="font-size:12px;color:var(--ink-light);padding:5px 0;">Sin productos asignados</div>';
+    var portesHTML=c.tarifas&&c.tarifas["portes"]!==undefined?
+      '<div style="display:flex;justify-content:space-between;align-items:center;padding:5px 0;font-size:12px;">'+
+      '<span style="color:var(--ink-mid);">Portes</span>'+
+      '<div style="display:flex;align-items:center;gap:8px;">'+
+      '<span style="font-family:var(--mono);font-weight:600;">EUR '+c.tarifas["portes"].toFixed(2)+'</span>'+
+      '<button class="btn btn-sm btn-outline" onclick="editarPrecio(''+c.id+'','portes','+c.tarifas["portes"]+')">Editar</button>'+
+      '</div></div>':"";
+    return '<div style="margin-bottom:1rem;padding:1rem;background:var(--paper);border:1px solid var(--border);border-radius:6px;">'+
+      '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:.75rem;">'+
+      '<div>'+
+      '<div style="font-weight:600;font-size:14px;">'+c.nombre+'</div>'+
+      '<div style="font-size:11px;color:var(--ink-light);margin-top:2px;">'+c.cif+' · '+c.ciudad+'</div>'+
+      '<div style="font-size:11px;color:var(--ink-light);">'+(c.email||"sin email")+'</div>'+
+      '</div>'+
+      '<button class="btn btn-sm btn-outline" onclick="asignarProducto(''+c.id+'')">+ Asignar producto</button>'+
+      '</div>'+prodsHTML+portesHTML+'</div>';
+  }).join("");
+}
+
 function vMaestros(){
   return `
   <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
@@ -1045,37 +1078,7 @@ function vMaestros(){
 
       <div class="card">
         <div class="section-label">Fichas de clientes</div>
-        ${CLIENTES.map(c=>{
-          const prodsCli=PRODUCTOS.filter(p=>p.id!=="portes"&&c.tarifas&&c.tarifas[p.id]!==undefined);
-          const prodsHTML=prodsCli.length?prodsCli.map(p=>`
-            <div style="display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid #f8f4ee;font-size:12px;">
-              <span style="color:var(--ink-mid);">${p.nombre} <span style="color:var(--ink-light);">(${p.unidad})</span></span>
-              <div style="display:flex;align-items:center;gap:8px;">
-                <span style="font-family:var(--mono);font-weight:600;">EUR ${c.tarifas[p.id].toFixed(2)}</span>
-                <button class="btn btn-sm btn-outline" onclick="editarPrecio('${c.id}','${p.id}',${c.tarifas[p.id]})">Editar</button>
-              </div>
-            </div>`).join("")
-            :'<div style="font-size:12px;color:var(--ink-light);padding:5px 0;">Sin productos asignados</div>';
-          const portesHTML=c.tarifas&&c.tarifas["portes"]!==undefined?
-            `<div style="display:flex;justify-content:space-between;align-items:center;padding:5px 0;font-size:12px;border-bottom:1px solid #f8f4ee;">
-              <span style="color:var(--ink-mid);">Portes</span>
-              <div style="display:flex;align-items:center;gap:8px;">
-                <span style="font-family:var(--mono);font-weight:600;">EUR ${c.tarifas["portes"].toFixed(2)}</span>
-                <button class="btn btn-sm btn-outline" onclick="editarPrecio('${c.id}','portes',${c.tarifas["portes"]})">Editar</button>
-              </div>
-            </div>`:"";
-          return `<div style="margin-bottom:1rem;padding:1rem;background:var(--paper);border:1px solid var(--border);border-radius:6px;">
-            <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:.75rem;">
-              <div>
-                <div style="font-weight:600;font-size:14px;">${c.nombre}</div>
-                <div style="font-size:11px;color:var(--ink-light);margin-top:2px;">${c.cif} · ${c.ciudad}</div>
-                <div style="font-size:11px;color:var(--ink-light);">${c.email||"sin email"}</div>
-              </div>
-              <button class="btn btn-sm btn-outline" onclick="asignarProducto('${c.id}')">+ Asignar producto</button>
-            </div>
-            ${prodsHTML}${portesHTML}
-          </div>`;
-        }).join("")}
+        <div id="fichas-clientes"></div>
       </div>
     </div>
 
