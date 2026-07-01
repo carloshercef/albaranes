@@ -1031,34 +1031,52 @@ async function _facturar(mes,año,spId){
 function renderFichasClientes(){
   var el=document.getElementById("fichas-clientes");
   if(!el) return;
-  el.innerHTML=CLIENTES.map(function(c){
+  var html="";
+  CLIENTES.forEach(function(c){
     var prodsCli=PRODUCTOS.filter(function(p){ return p.id!=="portes"&&c.tarifas&&c.tarifas[p.id]!==undefined; });
-    var prodsHTML=prodsCli.length?prodsCli.map(function(p){
-      return '<div style="display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid #f8f4ee;font-size:12px;">'+
-        '<span style="color:var(--ink-mid);">'+p.nombre+' <span style="color:var(--ink-light);">('+p.unidad+')</span></span>'+
-        '<div style="display:flex;align-items:center;gap:8px;">'+
-        '<span style="font-family:var(--mono);font-weight:600;">EUR '+c.tarifas[p.id].toFixed(2)+'</span>'+
-        '<button class="btn btn-sm btn-outline" onclick="editarPrecio(''+c.id+'',''+p.id+'','+c.tarifas[p.id]+')">Editar</button>'+
-        '</div></div>';
-    }).join(""):'<div style="font-size:12px;color:var(--ink-light);padding:5px 0;">Sin productos asignados</div>';
-    var portesHTML=c.tarifas&&c.tarifas["portes"]!==undefined?
-      '<div style="display:flex;justify-content:space-between;align-items:center;padding:5px 0;font-size:12px;">'+
-      '<span style="color:var(--ink-mid);">Portes</span>'+
-      '<div style="display:flex;align-items:center;gap:8px;">'+
-      '<span style="font-family:var(--mono);font-weight:600;">EUR '+c.tarifas["portes"].toFixed(2)+'</span>'+
-      '<button class="btn btn-sm btn-outline" onclick="editarPrecio(''+c.id+'','portes','+c.tarifas["portes"]+')">Editar</button>'+
-      '</div></div>':"";
-    return '<div style="margin-bottom:1rem;padding:1rem;background:var(--paper);border:1px solid var(--border);border-radius:6px;">'+
-      '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:.75rem;">'+
-      '<div>'+
-      '<div style="font-weight:600;font-size:14px;">'+c.nombre+'</div>'+
-      '<div style="font-size:11px;color:var(--ink-light);margin-top:2px;">'+c.cif+' · '+c.ciudad+'</div>'+
-      '<div style="font-size:11px;color:var(--ink-light);">'+(c.email||"sin email")+'</div>'+
-      '</div>'+
-      '<button class="btn btn-sm btn-outline" onclick="asignarProducto(''+c.id+'')">+ Asignar producto</button>'+
-      '</div>'+prodsHTML+portesHTML+'</div>';
-  }).join("");
+    var prodsHTML="";
+    if(prodsCli.length){
+      prodsCli.forEach(function(p){
+        prodsHTML+='<div style="display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid #f8f4ee;font-size:12px;">';
+        prodsHTML+='<span style="color:var(--ink-mid);">'+p.nombre+' ('+p.unidad+')</span>';
+        prodsHTML+='<div style="display:flex;align-items:center;gap:8px;">';
+        prodsHTML+='<span style="font-family:var(--mono);font-weight:600;">EUR '+c.tarifas[p.id].toFixed(2)+'</span>';
+        prodsHTML+='<button class="btn btn-sm btn-outline" onclick="editarPrecio(this)" data-cli="'+c.id+'" data-prod="'+p.id+'" data-precio="'+c.tarifas[p.id]+'">Editar</button>';
+        prodsHTML+='</div></div>';
+      });
+    } else {
+      prodsHTML='<div style="font-size:12px;color:var(--ink-light);padding:5px 0;">Sin productos asignados</div>';
+    }
+    var portesHTML="";
+    if(c.tarifas&&c.tarifas["portes"]!==undefined){
+      portesHTML='<div style="display:flex;justify-content:space-between;align-items:center;padding:5px 0;font-size:12px;">';
+      portesHTML+='<span style="color:var(--ink-mid);">Portes</span>';
+      portesHTML+='<div style="display:flex;align-items:center;gap:8px;">';
+      portesHTML+='<span style="font-family:var(--mono);font-weight:600;">EUR '+c.tarifas["portes"].toFixed(2)+'</span>';
+      portesHTML+='<button class="btn btn-sm btn-outline" onclick="editarPrecio(this)" data-cli="'+c.id+'" data-prod="portes" data-precio="'+c.tarifas["portes"]+'">Editar</button>';
+      portesHTML+='</div></div>';
+    }
+    html+='<div style="margin-bottom:1rem;padding:1rem;background:var(--paper);border:1px solid var(--border);border-radius:6px;">';
+    html+='<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:.75rem;">';
+    html+='<div>';
+    html+='<div style="font-weight:600;font-size:14px;">'+c.nombre+'</div>';
+    html+='<div style="font-size:11px;color:var(--ink-light);margin-top:2px;">'+c.cif+' - '+c.ciudad+'</div>';
+    html+='<div style="font-size:11px;color:var(--ink-light);">'+(c.email||"sin email")+'</div>';
+    html+='</div>';
+    html+='<button class="btn btn-sm btn-outline" data-asignar="'+c.id+'">+ Asignar producto</button>';
+    html+='</div>';
+    html+=prodsHTML+portesHTML+'</div>';
+  });
+  el.innerHTML=html;
+  // Add event listeners
+  el.querySelectorAll("button[data-cli]").forEach(function(btn){
+    btn.onclick=function(){ editarPrecioBtn(this); };
+  });
+  el.querySelectorAll("button[data-asignar]").forEach(function(btn){
+    btn.onclick=function(){ asignarProducto(this.getAttribute('data-asignar')); };
+  });
 }
+
 
 function vMaestros(){
   return `
@@ -1109,11 +1127,26 @@ function vMaestros(){
   </div>`;
 }
 
-function editarPrecio(cliId, prodId, precioActual){
-  const prod=PRODUCTOS.find(p=>p.id===prodId);
-  const nuevo=prompt("Nuevo precio para "+(prod?prod.nombre:prodId)+" (Actual: EUR "+precioActual.toFixed(2)+")", precioActual.toFixed(2));
+function editarPrecioBtn(btn){
+  var cliId=btn.getAttribute("data-cli");
+  var prodId=btn.getAttribute("data-prod");
+  var precioActual=parseFloat(btn.getAttribute("data-precio"))||0;
+  var prod=PRODUCTOS.find(function(p){ return p.id===prodId; });
+  var nuevo=prompt("Nuevo precio para "+(prod?prod.nombre:prodId)+" (Actual: EUR "+precioActual.toFixed(2)+")", precioActual.toFixed(2));
   if(nuevo===null) return;
-  const precio=parseFloat(nuevo);
+  var precio=parseFloat(nuevo);
+  if(isNaN(precio)||precio<0){showToast("Precio no valido","error");return;}
+  document.getElementById("pr-cli").value=cliId;
+  document.getElementById("pr-prod").value=prodId;
+  document.getElementById("pr-precio").value=precio;
+  guardarPrecio();
+}
+
+function editarPrecio(cliId, prodId, precioActual){
+  var prod=PRODUCTOS.find(function(p){ return p.id===prodId; });
+  var nuevo=prompt("Nuevo precio para "+(prod?prod.nombre:prodId)+" (Actual: EUR "+precioActual.toFixed(2)+")", precioActual.toFixed(2));
+  if(nuevo===null) return;
+  var precio=parseFloat(nuevo);
   if(isNaN(precio)||precio<0){showToast("Precio no valido","error");return;}
   document.getElementById("pr-cli").value=cliId;
   document.getElementById("pr-prod").value=prodId;
