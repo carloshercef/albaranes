@@ -288,12 +288,40 @@ textarea{resize:vertical;min-height:64px;}
   <div class="modal">
     <div class="modal-header"><h2>Nueva factura manual</h2><button class="btn-close" onclick="cerrarFacManual()">x</button></div>
     <div class="modal-body">
-      <div class="g2">
+      <!-- Selector tipo cliente -->
+      <div class="field">
+        <label>Tipo de cliente</label>
+        <div style="display:flex;gap:.75rem;">
+          <label style="display:flex;align-items:center;gap:6px;font-size:13px;font-weight:400;cursor:pointer;">
+            <input type="radio" name="fm-tipo" value="bbdd" checked onchange="toggleFmTipo()"> De la base de datos
+          </label>
+          <label style="display:flex;align-items:center;gap:6px;font-size:13px;font-weight:400;cursor:pointer;">
+            <input type="radio" name="fm-tipo" value="manual" onchange="toggleFmTipo()"> Datos manuales
+          </label>
+        </div>
+      </div>
+
+      <!-- Cliente de BBDD -->
+      <div id="fm-bbdd-block">
         <div class="field"><label>Cliente</label>
           <select id="fm-cliente"><option value="">-- Elegir cliente --</option></select>
         </div>
-        <div class="field"><label>Fecha factura</label><input type="date" id="fm-fecha"></div>
       </div>
+
+      <!-- Cliente manual -->
+      <div id="fm-manual-block" style="display:none;">
+        <div class="g2">
+          <div class="field"><label>Nombre fiscal</label><input type="text" id="fm-m-nombre" placeholder="Empresa S.L."></div>
+          <div class="field"><label>CIF/NIF</label><input type="text" id="fm-m-cif" placeholder="B-12345678"></div>
+        </div>
+        <div class="g2">
+          <div class="field"><label>Direccion</label><input type="text" id="fm-m-dir" placeholder="C/ Mayor 12"></div>
+          <div class="field"><label>Ciudad</label><input type="text" id="fm-m-ciudad" placeholder="46001 Valencia"></div>
+        </div>
+        <div class="field"><label>Email (para envio)</label><input type="text" id="fm-m-email" placeholder="contacto@empresa.com"></div>
+      </div>
+
+      <div class="field"><label>Fecha factura</label><input type="date" id="fm-fecha"></div>
       <div class="field"><label>Concepto</label><input type="text" id="fm-concepto" placeholder="Descripcion del servicio o producto"></div>
       <div class="g3">
         <div class="field"><label>Base imponible (EUR)</label><input type="number" id="fm-base" step="0.01" min="0" placeholder="0.00" oninput="calcFacManual()"></div>
@@ -904,6 +932,12 @@ function initFacClientes(){
   if(sel){ sel.innerHTML='<option value="">-- Elegir cliente --</option>'+CLIENTES.map(c=>`<option value="${c.id}">${c.nombre}</option>`).join(""); }
 }
 
+function toggleFmTipo(){
+  const tipo=document.querySelector('input[name="fm-tipo"]:checked').value;
+  document.getElementById("fm-bbdd-block").style.display=tipo==="bbdd"?"block":"none";
+  document.getElementById("fm-manual-block").style.display=tipo==="manual"?"block":"none";
+}
+
 function abrirFacManual(){
   document.getElementById("fm-fecha").value=new Date().toISOString().split("T")[0];
   document.getElementById("fm-concepto").value="";
@@ -922,22 +956,39 @@ function calcFacManual(){
   document.getElementById("fm-total").value="EUR "+(base*(1+iva/100)).toFixed(2);
 }
 async function guardarFacManual(){
-  const cId=document.getElementById("fm-cliente").value;
+  const tipo=document.querySelector('input[name="fm-tipo"]:checked').value;
   const fecha=document.getElementById("fm-fecha").value;
   const concepto=document.getElementById("fm-concepto").value.trim();
   const base=parseFloat(document.getElementById("fm-base").value)||0;
   const iva=parseFloat(document.getElementById("fm-iva").value)||0;
   const notas=document.getElementById("fm-notas").value.trim();
-  if(!cId){showToast("Selecciona un cliente","error");return;}
+
+  let clienteNombre, clienteEmail, clienteCif, clienteDireccion, clienteCiudad;
+
+  if(tipo==="bbdd"){
+    const cId=document.getElementById("fm-cliente").value;
+    if(!cId){showToast("Selecciona un cliente","error");return;}
+    const cli=CLIENTES.find(c=>c.id===cId);
+    clienteNombre=cli.nombre; clienteEmail=cli.email||"";
+    clienteCif=cli.cif||""; clienteDireccion=cli.direccion||""; clienteCiudad=cli.ciudad||"";
+  }else{
+    clienteNombre=document.getElementById("fm-m-nombre").value.trim();
+    clienteCif=document.getElementById("fm-m-cif").value.trim();
+    clienteDireccion=document.getElementById("fm-m-dir").value.trim();
+    clienteCiudad=document.getElementById("fm-m-ciudad").value.trim();
+    clienteEmail=document.getElementById("fm-m-email").value.trim();
+    if(!clienteNombre||!clienteCif){showToast("Nombre y CIF son obligatorios","error");return;}
+  }
+
   if(!concepto){showToast("Introduce un concepto","error");return;}
   if(!base){showToast("Introduce la base imponible","error");return;}
-  const cli=CLIENTES.find(c=>c.id===cId);
+
   const cuotaIva=base*iva/100;
   const total=base+cuotaIva;
   document.getElementById("sp-fac-man").style.display="block";
   try{
     const r=await jpost("saveFacturaManual",{
-      factura:{clienteId:cId,clienteNombre:cli.nombre,clienteEmail:cli.email||"",clienteCif:cli.cif||"",
+      factura:{clienteNombre,clienteEmail,clienteCif,clienteDireccion,clienteCiudad,
         fecha,concepto,base,ivaPorcentaje:iva,cuotaIva,total,notas,empresa:CFG.emp}
     });
     if(r.success){
@@ -993,10 +1044,38 @@ function vMaestros(){
       </div>
 
       <div class="card">
-        <div class="section-label">Clientes (${CLIENTES.length})</div>
-        ${CLIENTES.map(c=>`<div style="padding:8px 0;border-bottom:1px solid #f0ece4;font-size:13px;display:flex;justify-content:space-between;align-items:center;">
-          <div><strong>${c.nombre}</strong><div style="font-size:11px;color:var(--ink-light);">${c.cif} · ${c.email||"sin email"}</div></div>
-        </div>`).join("")}
+        <div class="section-label">Fichas de clientes</div>
+        ${CLIENTES.map(c=>{
+          const prodsCli=PRODUCTOS.filter(p=>p.id!=="portes"&&c.tarifas&&c.tarifas[p.id]!==undefined);
+          const prodsHTML=prodsCli.length?prodsCli.map(p=>`
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid #f8f4ee;font-size:12px;">
+              <span style="color:var(--ink-mid);">${p.nombre} <span style="color:var(--ink-light);">(${p.unidad})</span></span>
+              <div style="display:flex;align-items:center;gap:8px;">
+                <span style="font-family:var(--mono);font-weight:600;">EUR ${c.tarifas[p.id].toFixed(2)}</span>
+                <button class="btn btn-sm btn-outline" onclick="editarPrecio('${c.id}','${p.id}',${c.tarifas[p.id]})">Editar</button>
+              </div>
+            </div>`).join("")
+            :'<div style="font-size:12px;color:var(--ink-light);padding:5px 0;">Sin productos asignados</div>';
+          const portesHTML=c.tarifas&&c.tarifas["portes"]!==undefined?
+            `<div style="display:flex;justify-content:space-between;align-items:center;padding:5px 0;font-size:12px;border-bottom:1px solid #f8f4ee;">
+              <span style="color:var(--ink-mid);">Portes</span>
+              <div style="display:flex;align-items:center;gap:8px;">
+                <span style="font-family:var(--mono);font-weight:600;">EUR ${c.tarifas["portes"].toFixed(2)}</span>
+                <button class="btn btn-sm btn-outline" onclick="editarPrecio('${c.id}','portes',${c.tarifas["portes"]})">Editar</button>
+              </div>
+            </div>`:"";
+          return `<div style="margin-bottom:1rem;padding:1rem;background:var(--paper);border:1px solid var(--border);border-radius:6px;">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:.75rem;">
+              <div>
+                <div style="font-weight:600;font-size:14px;">${c.nombre}</div>
+                <div style="font-size:11px;color:var(--ink-light);margin-top:2px;">${c.cif} · ${c.ciudad}</div>
+                <div style="font-size:11px;color:var(--ink-light);">${c.email||"sin email"}</div>
+              </div>
+              <button class="btn btn-sm btn-outline" onclick="asignarProducto('${c.id}')">+ Asignar producto</button>
+            </div>
+            ${prodsHTML}${portesHTML}
+          </div>`;
+        }).join("")}
       </div>
     </div>
 
@@ -1025,6 +1104,27 @@ function vMaestros(){
       </div>
     </div>
   </div>`;
+}
+
+function editarPrecio(cliId, prodId, precioActual){
+  const prod=PRODUCTOS.find(p=>p.id===prodId);
+  const nuevo=prompt("Nuevo precio para "+(prod?prod.nombre:prodId)+":
+(Actual: EUR "+precioActual.toFixed(2)+")", precioActual.toFixed(2));
+  if(nuevo===null) return;
+  const precio=parseFloat(nuevo);
+  if(isNaN(precio)||precio<0){showToast("Precio no valido","error");return;}
+  document.getElementById("pr-cli").value=cliId;
+  document.getElementById("pr-prod").value=prodId;
+  document.getElementById("pr-precio").value=precio;
+  guardarPrecio();
+}
+
+function asignarProducto(cliId){
+  document.getElementById("pr-cli").value=cliId;
+  document.getElementById("pr-prod").selectedIndex=0;
+  document.getElementById("pr-precio").value="";
+  document.getElementById("pr-precio").focus();
+  document.getElementById("pr-precio").scrollIntoView({behavior:"smooth"});
 }
 
 async function guardarCliente(){
